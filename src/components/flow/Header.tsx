@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, MousePointerSquare, Move, Workflow } from 'lucide-react';
+import { Download, MousePointerSquareDashed, Move, Workflow } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export type InteractionMode = 'selection' | 'pan';
@@ -28,7 +28,7 @@ export function Header({ onExport, interactionMode, onInteractionModeChange }: H
       </div>
       <div className="flex items-center gap-2">
         <Button onClick={toggleInteractionMode} variant="outline" size="icon" title={interactionMode === 'selection' ? 'Switch to Pan Mode' : 'Switch to Selection Mode'}>
-            {interactionMode === 'selection' ? <MousePointerSquare className="w-4 h-4" /> : <Move className="w-4 h-4" />}
+            {interactionMode === 'selection' ? <MousePointerSquareDashed className="w-4 h-4" /> : <Move className="w-4 h-4" />}
         </Button>
         <Separator orientation="vertical" className="h-6" />
         <Button onClick={onExport} variant="outline">
