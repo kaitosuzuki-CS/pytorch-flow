@@ -16,6 +16,7 @@ import ReactFlow, {
   Connection,
   NodeProps,
   OnConnectStartParams,
+  useStore,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -26,6 +27,7 @@ import { CustomNode } from '@/components/flow/nodes/CustomNode';
 import { getComponentByType } from '@/lib/flow-components';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
+import { SelectionToolbar } from '@/components/flow/SelectionToolbar';
 
 const initialNodes: Node[] = [
   {
@@ -39,12 +41,16 @@ const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject } = useReactFlow();
+  const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [connectingNode, setConnectingNode] = useState<OnConnectStartParams | null>(null);
   const { toast } = useToast();
+
+  const selectedNodeCount = useStore(s => s.nodeInternals.size > 0 && Array.from(s.nodeInternals.values()).filter(n => n.selected).length);
+  const selectedEdgeCount = useStore(s => s.edges.filter(e => e.selected).length);
+  const hasSelection = selectedNodeCount > 0 || selectedEdgeCount > 0;
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: NodeProps) => {
     const componentInfo = getComponentByType(node.data.componentType);
@@ -164,6 +170,19 @@ function FlowForgeCanvas() {
     });
   };
 
+  const onDeleteSelection = () => {
+    const selectedNodes = getNodes().filter(n => n.selected);
+    const selectedEdges = getEdges().filter(e => e.selected);
+    
+    setNodes(nodes => nodes.filter(n => !n.selected));
+    setEdges(edges => edges.filter(e => !e.selected));
+
+    toast({
+      title: "Selection Deleted",
+      description: `Deleted ${selectedNodes.length} nodes and ${selectedEdges.length} edges.`,
+    });
+  };
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <Header onExport={handleExport} />
@@ -185,10 +204,17 @@ function FlowForgeCanvas() {
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
+            multiSelectionKey="Shift"
           >
             <Controls />
             <MiniMap />
             <Background gap={16} />
+            <SelectionToolbar 
+              isVisible={hasSelection}
+              onDelete={onDeleteSelection} 
+              nodeCount={selectedNodeCount || 0}
+              edgeCount={selectedEdgeCount || 0}
+            />
           </ReactFlow>
         </div>
         <ConfigPanel 
