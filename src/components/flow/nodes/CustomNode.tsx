@@ -16,7 +16,7 @@ type NodeData = {
 };
 
 type CustomNodeProps = NodeProps<NodeData> & {
-    onClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
+    onSettingsClick: (node: Node<NodeData>) => void;
     isConnecting: boolean;
 };
 
@@ -44,7 +44,7 @@ const endHandlePositions = [
     { position: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected, id, type, onClick, isConnecting }: CustomNodeProps) {
+export function CustomNode({ data, selected, id, type, onSettingsClick, isConnecting }: CustomNodeProps) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -75,21 +75,15 @@ export function CustomNode({ data, selected, id, type, onClick, isConnecting }: 
   }
 
   const hasParams = componentInfo.params.length > 0;
-  
-  const handleNodeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const node: Node<NodeData> = { id, data, position: {x:0, y:0}, type };
-    onClick(e, node);
-  }
 
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const node: Node<NodeData> = { id, data, position: {x:0, y:0}, type };
-    onClick(e, node);
+    onSettingsClick(node);
   }
 
   return (
-    <div className="group" onClick={handleNodeClick}>
+    <div className="group">
       <Card 
         className={cn(
             "w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", 
