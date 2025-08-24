@@ -217,6 +217,7 @@ function FlowForgeCanvas() {
             panOnDrag={interactionMode === 'pan' ? panOnDragWithLeftButton : panOnDragWithRightButton}
             selectionOnDrag={interactionMode === 'selection'}
             selectionMode={SelectionMode.Partial}
+            nodesDraggable={interactionMode === 'selection'}
           >
             <Controls />
             <MiniMap />
