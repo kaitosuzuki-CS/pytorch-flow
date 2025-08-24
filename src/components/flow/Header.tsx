@@ -10,7 +10,7 @@ type HeaderProps = {
 
 export function Header({ onExport }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-6 bg-background/80 backdrop-blur-sm border-b">
+    <header className="flex items-center justify-between h-16 px-6 bg-background border-b">
       <div className="flex items-center gap-3">
         <Workflow className="w-8 h-8 text-primary" />
         <h1 className="text-2xl font-bold font-headline text-foreground">
