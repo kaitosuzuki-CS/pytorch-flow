@@ -40,9 +40,6 @@ const initialNodes: Node[] = [
 ];
 const initialEdges: Edge[] = [];
 
-const panOnDrag = [1, 2];
-
-
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
@@ -212,9 +209,8 @@ function FlowForgeCanvas() {
             fitView
             fitViewOptions={{ padding: 0.2 }}
             className={cn(connectingNode && 'connecting')}
-            panOnDrag={panOnDrag}
-            selectionOnDrag
             selectionMode={SelectionMode.Partial}
+            panOnDrag
           >
             <Controls />
             <MiniMap />
