@@ -14,6 +14,7 @@ import ReactFlow, {
   Edge,
   Connection,
 } from 'reactflow';
+import 'reactflow/dist/style.css';
 
 import { Header } from '@/components/flow/Header';
 import { ComponentSidebar } from '@/components/flow/Sidebar';
@@ -133,9 +134,9 @@ function FlowForgeCanvas() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col">
+    <div className="flex h-screen w-screen flex-col overflow-hidden">
       <Header onExport={handleExport} />
-      <main className="flex flex-1 pt-16">
+      <main className="flex flex-1 overflow-hidden">
         <ComponentSidebar />
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
           <ReactFlow
