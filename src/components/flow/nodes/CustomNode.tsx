@@ -2,7 +2,7 @@
 "use client";
 
 import { getComponentByType } from '@/lib/flow-components';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, Position, NodeProps, Node } from 'reactflow';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import React from 'react';
@@ -14,6 +14,12 @@ type NodeData = {
   componentType: string;
   params: Record<string, any>;
 };
+
+type CustomNodeProps = NodeProps<NodeData> & {
+    onClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
+    isConnecting: boolean;
+};
+
 
 const handlePositionsDefault = [
   { position: Position.Top, style: { left: '50%' }, type: 'source' },
@@ -38,7 +44,7 @@ const endHandlePositions = [
     { position: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected, onNodeClick, id, isConnecting }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void; isConnecting: boolean; }) {
+export function CustomNode({ data, selected, id, type, onClick, isConnecting }: CustomNodeProps) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -70,16 +76,20 @@ export function CustomNode({ data, selected, onNodeClick, id, isConnecting }: No
 
   const hasParams = componentInfo.params.length > 0;
   
+  const handleNodeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const node: Node<NodeData> = { id, data, position: {x:0, y:0}, type };
+    onClick(e, node);
+  }
+
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if(onNodeClick) {
-        const nodeProps: NodeProps<NodeData> = { id, data, selected, isConnectable: true, xPos: 0, yPos: 0, dragging: false, zIndex: 0, type: '' };
-        onNodeClick(e, nodeProps);
-    }
+    const node: Node<NodeData> = { id, data, position: {x:0, y:0}, type };
+    onClick(e, node);
   }
 
   return (
-    <div className="group">
+    <div className="group" onClick={handleNodeClick}>
       <Card 
         className={cn(
             "w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", 

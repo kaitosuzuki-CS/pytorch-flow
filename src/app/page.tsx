@@ -21,7 +21,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { Header, InteractionMode } from '@/components/flow/Header';
+import { Header } from '@/components/flow/Header';
 import { ComponentSidebar } from '@/components/flow/Sidebar';
 import { ConfigPanel } from '@/components/flow/ConfigPanel';
 import { CustomNode } from '@/components/flow/nodes/CustomNode';
@@ -40,65 +40,83 @@ const initialNodes: Node[] = [
 ];
 const initialEdges: Edge[] = [];
 
-const panOnDragWithRightButton = [2];
-const panOnDragWithLeftButton = [1];
+const panOnDrag = [1, 2, 3];
 
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
+  const { screenToFlowPosition, toObject, getNodes, getEdges, project } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [connectingNode, setConnectingNode] = useState<OnConnectStartParams | null>(null);
+  const connectingNodeId = useRef<string | null>(null);
   const { toast } = useToast();
-  const [interactionMode, setInteractionMode] = useState<InteractionMode>('selection');
 
   const selectedNodeCount = useStore(s => s.nodeInternals.size > 0 && Array.from(s.nodeInternals.values()).filter(n => n.selected).length);
   const selectedEdgeCount = useStore(s => s.edges.filter(e => e.selected).length);
   const hasSelection = selectedNodeCount > 0 || selectedEdgeCount > 0;
 
-  const onNodeClick = useCallback((_: React.MouseEvent, node: NodeProps) => {
-    const componentInfo = getComponentByType(node.data.componentType);
-    if(componentInfo && componentInfo.params.length > 0){
-      setSelectedNode(node as Node);
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    if (connectingNodeId.current) {
+        const targetNode = node;
+        const sourceNodeId = connectingNodeId.current;
+
+        connectingNodeId.current = null;
+        
+        // This is a simplified connection logic. 
+        // A more robust solution would check for handle types and prevent self-connections.
+        const newEdge = {
+            id: `e${sourceNodeId}-${targetNode.id}`,
+            source: sourceNodeId,
+            target: targetNode.id,
+        };
+
+        setEdges((eds) => addEdge(newEdge, eds));
+        // Reset the connecting node state visually if needed
+        onNodesChange([{ id: sourceNodeId, type: 'select', selected: false }]);
+    } else {
+        const componentInfo = getComponentByType(node.data.componentType);
+        if(componentInfo && componentInfo.params.length > 0){
+          setSelectedNode(node);
+        }
     }
-  }, []);
+  }, [setEdges, onNodesChange]);
 
   const nodeTypes = useMemo(() => ({
-    start: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-    end: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-    process: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-    decision: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-    io: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-    document: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
-  }), [onNodeClick, connectingNode]);
+    start: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+    end: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+    process: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+    decision: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+    io: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+    document: (props: NodeProps) => <CustomNode {...props} onClick={onNodeClick} isConnecting={connectingNodeId.current === props.id} />,
+  }), [onNodeClick]);
 
-  const onConnectStart = useCallback((_: React.MouseEvent, params: OnConnectStartParams) => {
-    setConnectingNode(params);
-  }, []);
 
-  const onConnectEnd = useCallback(() => {
-    setConnectingNode(null);
-  }, []);
+  const onConnectStart = useCallback((_: any, { nodeId }: OnConnectStartParams) => {
+    connectingNodeId.current = nodeId!;
+    // Visually mark the node as connecting
+    onNodesChange([{ id: nodeId!, type: 'select', selected: true }]);
+  }, [onNodesChange]);
+
+  const onConnectEnd = useCallback((event: any) => {
+     // This is a workaround to detect clicks on the pane to cancel connection
+     if (!event.target.closest('.react-flow__handle')) {
+        if(connectingNodeId.current){
+             onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
+        }
+       connectingNodeId.current = null;
+     }
+  }, [onNodesChange]);
   
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-        // Handle click-to-connect
-        if (connectingNode) {
-            const newEdge = {
-                ...params,
-                source: connectingNode.nodeId!,
-                sourceHandle: connectingNode.handleId,
-            };
-            setEdges((eds) => addEdge(newEdge, eds));
-            setConnectingNode(null);
-        } else {
-            // Handle drag-to-connect
-            setEdges((eds) => addEdge(params, eds));
+        setEdges((eds) => addEdge(params, eds));
+        if (connectingNodeId.current) {
+            onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
         }
+        connectingNodeId.current = null;
     },
-    [setEdges, connectingNode]
+    [setEdges, onNodesChange]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -190,12 +208,15 @@ function FlowForgeCanvas() {
   };
 
   const onCancelConnection = () => {
-    setConnectingNode(null);
+    if (connectingNodeId.current) {
+        onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
+    }
+    connectingNodeId.current = null;
   }
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <Header onExport={handleExport} interactionMode={interactionMode} onInteractionModeChange={setInteractionMode} />
+      <Header onExport={handleExport} />
       <main className="flex flex-1 overflow-hidden">
         <ComponentSidebar />
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
@@ -213,17 +234,18 @@ function FlowForgeCanvas() {
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.4 }}
-            className={cn(connectingNode && 'connecting')}
-            panOnDrag={interactionMode === 'pan' ? panOnDragWithLeftButton : panOnDragWithRightButton}
-            selectionOnDrag={interactionMode === 'selection'}
+            className={cn(!!connectingNodeId.current && 'connecting')}
+            panOnDrag={panOnDrag}
+            selectionOnDrag
             selectionMode={SelectionMode.Partial}
+            nodesDraggable
           >
             <Controls />
             <MiniMap />
             <Background gap={16} />
             <SelectionToolbar 
-              isVisible={hasSelection || !!connectingNode}
-              isConnecting={!!connectingNode}
+              isVisible={hasSelection || !!connectingNodeId.current}
+              isConnecting={!!connectingNodeId.current}
               onDelete={onDeleteSelection}
               onCancelConnection={onCancelConnection}
               nodeCount={selectedNodeCount || 0}
