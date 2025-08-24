@@ -13,7 +13,7 @@ import ReactFlow, {
   Node,
   Edge,
   Connection,
-} from '@xyflow/react';
+} from 'reactflow';
 
 import { Header } from '@/components/flow/Header';
 import { ComponentSidebar } from '@/components/flow/Sidebar';

@@ -1,7 +1,7 @@
 "use client";
 
 import { getComponentByType } from '@/lib/flow-components';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeProps } from 'reactflow';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import React from 'react';

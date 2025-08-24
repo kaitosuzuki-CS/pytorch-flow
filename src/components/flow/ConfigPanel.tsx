@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getComponentByType, Param } from '@/lib/flow-components';
-import { Node } from '@xyflow/react';
+import { Node } from 'reactflow';
 import { ScrollArea } from '../ui/scroll-area';
 
 type ConfigPanelProps = {
