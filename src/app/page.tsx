@@ -17,6 +17,7 @@ import ReactFlow, {
   NodeProps,
   OnConnectStartParams,
   useStore,
+  SelectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -38,6 +39,8 @@ const initialNodes: Node[] = [
   },
 ];
 const initialEdges: Edge[] = [];
+
+const panOnDrag = [1, 2];
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -208,6 +211,9 @@ function FlowForgeCanvas() {
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
+            panOnDrag={[2]}
+            selectionOnDrag
+            selectionMode={SelectionMode.Partial}
           >
             <Controls />
             <MiniMap />
