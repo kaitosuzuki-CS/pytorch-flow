@@ -212,7 +212,7 @@ function FlowForgeCanvas() {
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.4 }}
+            fitViewOptions={{ padding: 0.2 }}
             className={cn(connectingNode && 'connecting')}
             panOnDrag={interactionMode === 'pan' ? panOnDragWithLeftButton : panOnDragWithRightButton}
             selectionOnDrag={interactionMode === 'selection'}
