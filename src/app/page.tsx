@@ -75,10 +75,7 @@ function FlowForgeCanvas() {
           ...current,
           nodes: applyNodeChanges(changes, current.nodes)
       }), {
-          // don't create a new history state when nodes are just selected/deselected
-          // or when they are being dragged
-          // see https://reactflow.dev/docs/guides/implementing-undo-redo/
-          skip: changes.every(change => change.type === 'select' || change.type === 'position' && !change.dragging)
+          skip: changes.every(change => (change.type === 'position' && change.dragging) || change.type === 'select')
       });
   }, [setState]);
 
