@@ -18,6 +18,7 @@ import ReactFlow, {
   OnConnectStartParams,
   useStore,
   SelectionMode,
+  HandleType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -47,8 +48,10 @@ function FlowForgeCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const connectingNodeId = useRef<string | null>(null);
+  
+  const connectingNode = useRef<{nodeId: string, handleId: string | null, handleType: HandleType} | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [justConnected, setJustConnected] = useState(false);
   const { toast } = useToast();
 
   const selectedNodeCount = useStore(s => s.nodeInternals.size > 0 && Array.from(s.nodeInternals.values()).filter(n => n.selected).length);
@@ -60,27 +63,29 @@ function FlowForgeCanvas() {
   }, []);
 
   const nodeTypes = useMemo(() => ({
-    start: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
-    end: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
-    process: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
-    decision: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
-    io: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
-    document: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNodeId.current === props.id} />,
+    start: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
+    end: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
+    process: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
+    decision: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
+    io: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
+    document: (props: NodeProps) => <CustomNode {...props} onSettingsClick={onSettingsClick} isConnecting={connectingNode.current?.nodeId === props.id} />,
   }), [onSettingsClick]);
 
 
-  const onConnectStart = useCallback((_: any, { nodeId }: OnConnectStartParams) => {
-    connectingNodeId.current = nodeId!;
-    setIsConnecting(true);
+  const onConnectStart = useCallback((_: React.MouseEvent, { nodeId, handleId, handleType }: OnConnectStartParams) => {
+    if (nodeId && handleType) {
+      connectingNode.current = { nodeId, handleId, handleType };
+      setIsConnecting(true);
+    }
   }, []);
 
-  const onConnectEnd = useCallback((event: any) => {
-    // This is a workaround to detect clicks on the pane to cancel connection
-    if (!event.target.closest('.react-flow__handle')) {
-        if(connectingNodeId.current){
-             onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
+  const onConnectEnd = useCallback((event: MouseEvent) => {
+     // This is a workaround to detect clicks on the pane to cancel connection
+     if (!(event.target as HTMLElement).closest('.react-flow__handle')) {
+        if(connectingNode.current){
+             onNodesChange([{ id: connectingNode.current.nodeId, type: 'select', selected: false }]);
         }
-       connectingNodeId.current = null;
+       connectingNode.current = null;
        setIsConnecting(false);
     }
   }, [onNodesChange]);
@@ -88,10 +93,9 @@ function FlowForgeCanvas() {
   const onConnect = useCallback(
     (params: Edge | Connection) => {
         setEdges((eds) => addEdge(params, eds));
-        if (connectingNodeId.current) {
-            onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
-        }
-        connectingNodeId.current = null;
+        setJustConnected(true);
+        setTimeout(() => setJustConnected(false), 500); // Reset after animation
+        connectingNode.current = null;
         setIsConnecting(false);
     },
     [setEdges, onNodesChange]
@@ -186,10 +190,10 @@ function FlowForgeCanvas() {
   };
 
   const onCancelConnection = () => {
-    if (connectingNodeId.current) {
-        onNodesChange([{ id: connectingNodeId.current, type: 'select', selected: false }]);
+    if (connectingNode.current) {
+        onNodesChange([{ id: connectingNode.current.nodeId, type: 'select', selected: false }]);
     }
-    connectingNodeId.current = null;
+    connectingNode.current = null;
     setIsConnecting(false);
   }
 
@@ -218,9 +222,13 @@ function FlowForgeCanvas() {
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.4 }}
-            className={cn(isConnecting && 'connecting')}
+            className={cn(
+              isConnecting && 'connecting',
+              justConnected && 'connected'
+            )}
             selectionOnDrag
             selectionMode={SelectionMode.Partial}
+            panOnDrag={false}
             nodesDraggable
           >
             <Controls />

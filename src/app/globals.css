@@ -105,19 +105,26 @@
 .react-flow__handle {
   width: 12px;
   height: 12px;
-  background-color: hsl(var(--primary));
+  background-color: hsl(var(--foreground));
   border: 2px solid hsl(var(--card));
-  opacity: 0.5;
   transition: all 0.2s ease-in-out;
 }
 
-.react-flow__node:hover .react-flow__handle, .react-flow__handle:hover, .react-flow__handle-connecting {
-    opacity: 1;
+.react-flow__node:hover .react-flow__handle, .react-flow__handle:hover {
     transform: scale(1.2);
 }
 
 .react-flow__handle-connecting {
   background-color: hsl(var(--ring));
+  transform: scale(1.2);
+}
+
+.connecting .react-flow__handle {
+  background-color: hsl(var(--destructive));
+}
+
+.connected .react-flow__handle {
+    background-color: #22c55e; /* green-500 */
 }
 
 .react-flow__edge-path {
