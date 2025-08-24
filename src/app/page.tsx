@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useCallback, useMemo } from 'react';
@@ -41,14 +42,18 @@ function FlowForgeCanvas() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { toast } = useToast();
 
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  }, []);
+
   const nodeTypes = useMemo(() => ({
-    start: CustomNode,
-    end: CustomNode,
-    process: CustomNode,
-    decision: CustomNode,
-    io: CustomNode,
-    document: CustomNode,
-  }), []);
+    start: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+    end: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+    process: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+    decision: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+    io: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+    document: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
+  }), [onNodeClick]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -97,9 +102,6 @@ function FlowForgeCanvas() {
     [screenToFlowPosition, setNodes]
   );
   
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNode(node);
-  }, []);
 
   const onSaveConfig = (nodeId: string, data: any) => {
     setNodes((nds) =>
@@ -147,7 +149,6 @@ function FlowForgeCanvas() {
             onConnect={onConnect}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            onNodeClick={onNodeClick}
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
             fitView

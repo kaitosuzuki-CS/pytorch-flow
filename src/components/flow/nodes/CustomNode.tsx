@@ -1,3 +1,4 @@
+
 "use client";
 
 import { getComponentByType } from '@/lib/flow-components';
@@ -12,18 +13,30 @@ type NodeData = {
   params: Record<string, any>;
 };
 
-const handlePositions = [
-  { position: Position.Top, style: { left: '50%' } },
-  { position: Position.Right, style: { top: '50%' } },
-  { position: Position.Bottom, style: { left: '50%' } },
-  { position: Position.Left, style: { top: '50%' } },
-  { position: Position.Top, style: { left: '25%' } },
-  { position: Position.Top, style: { left: '75%' } },
-  { position: Position.Bottom, style: { left: '25%' } },
-  { position: Position.Bottom, style: { left: '75%' } },
+const handlePositionsDefault = [
+  { position: Position.Top, style: { left: '50%' }, type: 'source' },
+  { position: Position.Right, style: { top: '50%' }, type: 'source' },
+  { position: Position.Bottom, style: { left: '50%' }, type: 'source' },
+  { position: Position.Left, style: { top: '50%' }, type: 'source' },
+  { position: Position.Top, style: { left: '25%' }, type: 'target' },
+  { position: Position.Top, style: { left: '75%' }, type: 'target' },
+  { position: Position.Bottom, style: { left: '25%' }, type: 'target' },
+  { position: Position.Bottom, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected }: NodeProps<NodeData>) {
+const startHandlePositions = [
+    { position: Position.Bottom, style: { left: '25%' }, type: 'source' },
+    { position: Position.Bottom, style: { left: '50%' }, type: 'source' },
+    { position: Position.Bottom, style: { left: '75%' }, type: 'source' },
+];
+
+const endHandlePositions = [
+    { position: Position.Top, style: { left: '25%' }, type: 'target' },
+    { position: Position.Top, style: { left: '50%' }, type: 'target' },
+    { position: Position.Top, style: { left: '75%' }, type: 'target' },
+];
+
+export function CustomNode({ data, selected, onNodeClick }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void }) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -41,10 +54,24 @@ export function CustomNode({ data, selected }: NodeProps<NodeData>) {
     }
     return data.label;
   }
+  
+  const getHandlePositions = () => {
+      switch (data.componentType) {
+          case 'start':
+              return startHandlePositions;
+          case 'end':
+              return endHandlePositions;
+          default:
+              return handlePositionsDefault;
+      }
+  }
 
   return (
     <div className="group">
-      <Card className={cn("w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent", selected && "border-primary/80 shadow-lg")}>
+      <Card 
+        className={cn("w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent", selected && "border-primary/80 shadow-lg")}
+        onClick={(e) => onNodeClick?.(e, { id: '', data, selected, isConnectable: true, xPos: 0, yPos: 0, dragging: false, zIndex: 0, type: ''})}
+      >
         <CardContent className="p-3">
           <div className="flex items-center gap-3">
               <div className="p-2 bg-accent rounded-md">
@@ -57,21 +84,14 @@ export function CustomNode({ data, selected }: NodeProps<NodeData>) {
           </div>
         </CardContent>
       </Card>
-      {handlePositions.map((handle, index) => (
-        <React.Fragment key={index}>
-            <Handle
-              type="source"
-              position={handle.position}
-              id={`source-${index}`}
-              style={handle.style}
-            />
-            <Handle
-              type="target"
-              position={handle.position}
-              id={`target-${index}`}
-              style={handle.style}
-            />
-        </React.Fragment>
+      {getHandlePositions().map((handle, index) => (
+        <Handle
+            key={index}
+            type={handle.type as any}
+            position={handle.position}
+            id={`${handle.type}-${index}`}
+            style={handle.style}
+        />
       ))}
     </div>
   );
