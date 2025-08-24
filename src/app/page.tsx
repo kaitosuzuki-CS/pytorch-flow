@@ -204,7 +204,6 @@ function FlowForgeCanvas() {
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
-            multiSelectionKey="Shift"
           >
             <Controls />
             <MiniMap />
