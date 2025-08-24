@@ -205,7 +205,6 @@ function FlowForgeCanvas() {
             onDragOver={onDragOver}
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
-            multiSelectionKey="Shift"
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
