@@ -134,7 +134,7 @@ function FlowForgeCanvas() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden">
+    <div className="flex h-screen flex-col bg-background">
       <Header onExport={handleExport} />
       <main className="flex flex-1 overflow-hidden">
         <ComponentSidebar />
@@ -151,6 +151,7 @@ function FlowForgeCanvas() {
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
             fitView
+            fitViewOptions={{ padding: 0.4 }}
           >
             <Controls />
             <MiniMap />
