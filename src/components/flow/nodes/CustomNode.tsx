@@ -38,7 +38,7 @@ const endHandlePositions = [
     { position: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected, onNodeClick, id }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void }) {
+export function CustomNode({ data, selected, onNodeClick, id, isConnecting }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void; isConnecting: boolean; }) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -81,7 +81,11 @@ export function CustomNode({ data, selected, onNodeClick, id }: NodeProps<NodeDa
   return (
     <div className="group">
       <Card 
-        className={cn("w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", selected && "border-primary/80 shadow-lg")}
+        className={cn(
+            "w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", 
+            selected && "border-primary/80 shadow-lg",
+            isConnecting && "border-primary/80 shadow-lg"
+        )}
       >
         <CardContent className="p-3">
           <div className="flex items-center gap-3">

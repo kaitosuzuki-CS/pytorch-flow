@@ -60,13 +60,13 @@ function FlowForgeCanvas() {
   }, []);
 
   const nodeTypes = useMemo(() => ({
-    start: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-    end: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-    process: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-    decision: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-    io: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-    document: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
-  }), [onNodeClick]);
+    start: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+    end: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+    process: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+    decision: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+    io: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+    document: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} isConnecting={connectingNode?.nodeId === props.id} />,
+  }), [onNodeClick, connectingNode]);
 
   const onConnectStart = useCallback((_: React.MouseEvent, params: OnConnectStartParams) => {
     setConnectingNode(params);
@@ -183,6 +183,10 @@ function FlowForgeCanvas() {
     });
   };
 
+  const onCancelConnection = () => {
+    setConnectingNode(null);
+  }
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <Header onExport={handleExport} />
@@ -201,6 +205,7 @@ function FlowForgeCanvas() {
             onDragOver={onDragOver}
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
+            multiSelectionKey="Shift"
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
@@ -209,8 +214,10 @@ function FlowForgeCanvas() {
             <MiniMap />
             <Background gap={16} />
             <SelectionToolbar 
-              isVisible={hasSelection}
-              onDelete={onDeleteSelection} 
+              isVisible={hasSelection || !!connectingNode}
+              isConnecting={!!connectingNode}
+              onDelete={onDeleteSelection}
+              onCancelConnection={onCancelConnection}
               nodeCount={selectedNodeCount || 0}
               edgeCount={selectedEdgeCount || 0}
             />
