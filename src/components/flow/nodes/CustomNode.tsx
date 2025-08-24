@@ -86,9 +86,9 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
     <div className="group">
       <Card 
         className={cn(
-            "w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", 
-            selected && "border-primary/80 shadow-lg",
-            isConnecting && "border-primary/80 shadow-lg"
+            "w-48 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
+            selected ? "border-primary/80" : "border-transparent",
+            isConnecting && "border-primary shadow-lg"
         )}
       >
         <CardContent className="p-3">
@@ -118,7 +118,7 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
             key={index}
             type={handle.type as any}
             position={handle.position}
-            id={`${handle.type}-${index}`}
+            id={`${handle.position}-${handle.type}-${index}`}
             style={handle.style}
         />
       ))}

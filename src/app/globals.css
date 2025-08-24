@@ -102,8 +102,18 @@
 }
 
 /* React Flow Custom Styles */
-.react-flow__node:hover .react-flow__handle, .react-flow__handle-connecting, .react-flow__node-selected .react-flow__handle {
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  background-color: hsl(var(--primary));
+  border: 2px solid hsl(var(--card));
+  opacity: 0.5;
+  transition: all 0.2s ease-in-out;
+}
+
+.react-flow__node:hover .react-flow__handle, .react-flow__handle:hover, .react-flow__handle-connecting {
     opacity: 1;
+    transform: scale(1.2);
 }
 
 .react-flow__handle-connecting {
@@ -139,8 +149,4 @@
 
 .react-flow__controls button svg {
     fill: hsl(var(--foreground));
-}
-
-.react-flow.connecting .react-flow__handle-target {
-  cursor: crosshair;
 }
