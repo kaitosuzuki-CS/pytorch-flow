@@ -1,11 +1,9 @@
 
 "use client";
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
-  useNodesState,
-  useEdgesState,
   addEdge,
   useReactFlow,
   Controls,
@@ -19,6 +17,10 @@ import ReactFlow, {
   useStore,
   SelectionMode,
   HandleType,
+  applyNodeChanges,
+  applyEdgeChanges,
+  NodeChange,
+  EdgeChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -30,6 +32,7 @@ import { getComponentByType } from '@/lib/flow-components';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 import { SelectionToolbar } from '@/components/flow/SelectionToolbar';
+import { useHistory } from '@/hooks/use-history';
 
 const initialNodes: Node[] = [
   {
@@ -45,8 +48,17 @@ const initialEdges: Edge[] = [];
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const {
+    state,
+    setState,
+    canUndo,
+    canRedo,
+    undo,
+    redo
+  } = useHistory({ nodes: initialNodes, edges: initialEdges });
+
+  const { nodes, edges } = state;
+
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   
   const connectingNode = useRef<{nodeId: string, handleId: string | null, handleType: HandleType} | null>(null);
@@ -58,6 +70,25 @@ function FlowForgeCanvas() {
   const selectedEdgeCount = useStore(s => s.edges.filter(e => e.selected).length);
   const hasSelection = selectedNodeCount > 0 || selectedEdgeCount > 0;
 
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+      setState(current => ({
+          ...current,
+          nodes: applyNodeChanges(changes, current.nodes)
+      }), {
+          // don't create a new history state when nodes are just selected/deselected
+          // or when they are being dragged
+          // see https://reactflow.dev/docs/guides/implementing-undo-redo/
+          skip: changes.every(change => change.type === 'select' || change.type === 'position' && !change.dragging)
+      });
+  }, [setState]);
+
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+      setState(current => ({
+          ...current,
+          edges: applyEdgeChanges(changes, current.edges)
+      }), { skip: changes.every(change => change.type === 'select') });
+  }, [setState]);
+  
   const onSettingsClick = useCallback((node: Node) => {
     setSelectedNode(node);
   }, []);
@@ -92,13 +123,13 @@ function FlowForgeCanvas() {
   
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-        setEdges((eds) => addEdge(params, eds));
+        setState(current => ({ ...current, edges: addEdge(params, current.edges) }));
         setJustConnected(true);
         setTimeout(() => setJustConnected(false), 500); // Reset after animation
         connectingNode.current = null;
         setIsConnecting(false);
     },
-    [setEdges, onNodesChange]
+    [setState]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -138,21 +169,23 @@ function FlowForgeCanvas() {
         data: { label: componentName, componentType: nodeType, params },
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      setState(current => ({ ...current, nodes: current.nodes.concat(newNode) }));
     },
-    [screenToFlowPosition, setNodes]
+    [screenToFlowPosition, setState]
   );
   
 
   const onSaveConfig = (nodeId: string, data: any) => {
-    setNodes((nds) =>
-      nds.map((node) => {
+    setState(current => ({
+      ...current,
+      nodes: current.nodes.map((node) => {
         if (node.id === nodeId) {
           node.data = { ...node.data, params: data };
         }
         return node;
       })
-    );
+    }));
+
     toast({
         title: "Configuration Saved",
         description: `Changes to "${getComponentByType(selectedNode!.data.componentType)?.name}" have been saved.`,
@@ -177,11 +210,14 @@ function FlowForgeCanvas() {
   };
 
   const onDeleteSelection = () => {
-    const selectedNodes = getNodes().filter(n => n.selected);
-    const selectedEdges = getEdges().filter(e => e.selected);
+    const selectedNodes = getNodes().filter(n => n.selected).map(n => n.id);
+    const selectedEdges = getEdges().filter(e => e.selected).map(e => e.id);
     
-    setNodes(nodes => nodes.filter(n => !n.selected));
-    setEdges(edges => edges.filter(e => !e.selected));
+    setState(current => ({
+        ...current,
+        nodes: current.nodes.filter(n => !selectedNodes.includes(n.id)),
+        edges: current.edges.filter(e => !selectedEdges.includes(e.id))
+    }));
 
     toast({
       title: "Selection Deleted",
@@ -201,10 +237,32 @@ function FlowForgeCanvas() {
     setSelectedNode(null);
     onCancelConnection();
   };
+  
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+        if (!event.shiftKey) {
+          undo();
+        } else {
+          redo();
+        }
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+        redo();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [undo, redo]);
+
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <Header onExport={handleExport} />
+      <Header onExport={handleExport} onUndo={undo} onRedo={redo} canUndo={canUndo} canRedo={canRedo} />
       <main className="flex flex-1 overflow-hidden">
         <ComponentSidebar />
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
@@ -228,7 +286,7 @@ function FlowForgeCanvas() {
             )}
             selectionOnDrag
             selectionMode={SelectionMode.Partial}
-            panOnDrag={false}
+            panOnDrag
             nodesDraggable
           >
             <Controls />

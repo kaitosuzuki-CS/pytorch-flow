@@ -1,14 +1,18 @@
+
 "use client"
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Workflow } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Download, Workflow, Undo, Redo } from 'lucide-react';
 
 type HeaderProps = {
   onExport: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 };
 
-export function Header({ onExport }: HeaderProps) {
+export function Header({ onExport, onUndo, onRedo, canUndo, canRedo }: HeaderProps) {
   
   return (
     <header className="flex items-center justify-between h-16 px-6 bg-background border-b z-20">
@@ -19,6 +23,12 @@ export function Header({ onExport }: HeaderProps) {
         </h1>
       </div>
       <div className="flex items-center gap-2">
+        <Button onClick={onUndo} variant="outline" size="icon" disabled={!canUndo} aria-label="Undo">
+            <Undo className="w-4 h-4" />
+        </Button>
+        <Button onClick={onRedo} variant="outline" size="icon" disabled={!canRedo} aria-label="Redo">
+            <Redo className="w-4 h-4" />
+        </Button>
         <Button onClick={onExport} variant="outline">
             <Download className="w-4 h-4 mr-2" />
             Export JSON
