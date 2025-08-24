@@ -6,6 +6,8 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type NodeData = {
   label: string;
@@ -36,7 +38,7 @@ const endHandlePositions = [
     { position: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected, onNodeClick }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void }) {
+export function CustomNode({ data, selected, onNodeClick, id }: NodeProps<NodeData> & { onNodeClick?: (event: React.MouseEvent, node: NodeProps<NodeData>) => void }) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -66,11 +68,20 @@ export function CustomNode({ data, selected, onNodeClick }: NodeProps<NodeData> 
       }
   }
 
+  const hasParams = componentInfo.params.length > 0;
+  
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if(onNodeClick) {
+        const nodeProps: NodeProps<NodeData> = { id, data, selected, isConnectable: true, xPos: 0, yPos: 0, dragging: false, zIndex: 0, type: '' };
+        onNodeClick(e, nodeProps);
+    }
+  }
+
   return (
     <div className="group">
       <Card 
-        className={cn("w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent", selected && "border-primary/80 shadow-lg")}
-        onClick={(e) => onNodeClick?.(e, { id: '', data, selected, isConnectable: true, xPos: 0, yPos: 0, dragging: false, zIndex: 0, type: ''})}
+        className={cn("w-48 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent relative", selected && "border-primary/80 shadow-lg")}
       >
         <CardContent className="p-3">
           <div className="flex items-center gap-3">
@@ -83,6 +94,16 @@ export function CustomNode({ data, selected, onNodeClick }: NodeProps<NodeData> 
               </div>
           </div>
         </CardContent>
+        {hasParams && (
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleSettingsClick}
+            >
+                <Settings className="w-4 h-4" />
+            </Button>
+        )}
       </Card>
       {getHandlePositions().map((handle, index) => (
         <Handle

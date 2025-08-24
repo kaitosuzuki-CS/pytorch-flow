@@ -14,6 +14,7 @@ import ReactFlow, {
   Node,
   Edge,
   Connection,
+  NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -42,8 +43,11 @@ function FlowForgeCanvas() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { toast } = useToast();
 
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNode(node);
+  const onNodeClick = useCallback((_: React.MouseEvent, node: NodeProps) => {
+    const componentInfo = getComponentByType(node.data.componentType);
+    if(componentInfo && componentInfo.params.length > 0){
+      setSelectedNode(node as Node);
+    }
   }, []);
 
   const nodeTypes = useMemo(() => ({
