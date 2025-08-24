@@ -16,7 +16,7 @@ export function SelectionToolbar({ isVisible, onDelete, nodeCount, edgeCount }: 
   return (
     <div
       className={cn(
-        'absolute top-4 left-1/2 -translate-x-1/2 z-10 p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center gap-4 transition-all duration-300',
+        'absolute top-4 left-1/2 -translate-x-1/2 z-30 p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center gap-4 transition-all duration-300',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-12 pointer-events-none'
       )}
     >
