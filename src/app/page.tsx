@@ -21,7 +21,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { Header } from '@/components/flow/Header';
+import { Header, InteractionMode } from '@/components/flow/Header';
 import { ComponentSidebar } from '@/components/flow/Sidebar';
 import { ConfigPanel } from '@/components/flow/ConfigPanel';
 import { CustomNode } from '@/components/flow/nodes/CustomNode';
@@ -40,7 +40,9 @@ const initialNodes: Node[] = [
 ];
 const initialEdges: Edge[] = [];
 
-const panOnDrag = [1, 2];
+const panOnDragWithRightButton = [2];
+const panOnDragWithLeftButton = [1];
+
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -50,6 +52,7 @@ function FlowForgeCanvas() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [connectingNode, setConnectingNode] = useState<OnConnectStartParams | null>(null);
   const { toast } = useToast();
+  const [interactionMode, setInteractionMode] = useState<InteractionMode>('selection');
 
   const selectedNodeCount = useStore(s => s.nodeInternals.size > 0 && Array.from(s.nodeInternals.values()).filter(n => n.selected).length);
   const selectedEdgeCount = useStore(s => s.edges.filter(e => e.selected).length);
@@ -192,7 +195,7 @@ function FlowForgeCanvas() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <Header onExport={handleExport} />
+      <Header onExport={handleExport} interactionMode={interactionMode} onInteractionModeChange={setInteractionMode} />
       <main className="flex flex-1 overflow-hidden">
         <ComponentSidebar />
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
@@ -211,8 +214,8 @@ function FlowForgeCanvas() {
             fitView
             fitViewOptions={{ padding: 0.4 }}
             className={cn(connectingNode && 'connecting')}
-            panOnDrag={[2]}
-            selectionOnDrag
+            panOnDrag={interactionMode === 'pan' ? panOnDragWithLeftButton : panOnDragWithRightButton}
+            selectionOnDrag={interactionMode === 'selection'}
             selectionMode={SelectionMode.Partial}
           >
             <Controls />
