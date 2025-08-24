@@ -140,3 +140,7 @@
 .react-flow__controls button svg {
     fill: hsl(var(--foreground));
 }
+
+.react-flow.connecting .react-flow__handle-target {
+  cursor: crosshair;
+}

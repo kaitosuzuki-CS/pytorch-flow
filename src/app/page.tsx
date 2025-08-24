@@ -15,6 +15,7 @@ import ReactFlow, {
   Edge,
   Connection,
   NodeProps,
+  OnConnectStartParams,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -24,6 +25,7 @@ import { ConfigPanel } from '@/components/flow/ConfigPanel';
 import { CustomNode } from '@/components/flow/nodes/CustomNode';
 import { getComponentByType } from '@/lib/flow-components';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 const initialNodes: Node[] = [
   {
@@ -41,6 +43,7 @@ function FlowForgeCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [connectingNode, setConnectingNode] = useState<OnConnectStartParams | null>(null);
   const { toast } = useToast();
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: NodeProps) => {
@@ -59,9 +62,31 @@ function FlowForgeCanvas() {
     document: (props: any) => <CustomNode {...props} onNodeClick={onNodeClick} />,
   }), [onNodeClick]);
 
+  const onConnectStart = useCallback((_: React.MouseEvent, params: OnConnectStartParams) => {
+    setConnectingNode(params);
+  }, []);
+
+  const onConnectEnd = useCallback(() => {
+    setConnectingNode(null);
+  }, []);
+  
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    (params: Edge | Connection) => {
+        // Handle click-to-connect
+        if (connectingNode) {
+            const newEdge = {
+                ...params,
+                source: connectingNode.nodeId!,
+                sourceHandle: connectingNode.handleId,
+            };
+            setEdges((eds) => addEdge(newEdge, eds));
+            setConnectingNode(null);
+        } else {
+            // Handle drag-to-connect
+            setEdges((eds) => addEdge(params, eds));
+        }
+    },
+    [setEdges, connectingNode]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -151,12 +176,15 @@ function FlowForgeCanvas() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onConnectStart={onConnectStart}
+            onConnectEnd={onConnectEnd}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.4 }}
+            className={cn(connectingNode && 'connecting')}
           >
             <Controls />
             <MiniMap />
