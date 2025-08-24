@@ -20,26 +20,25 @@ type CustomNodeProps = NodeProps<NodeData> & {
     isConnecting: boolean;
 };
 
-
 const handlePositionsDefault = [
-  { position: Position.Top, style: { left: '33%' }, type: 'any' },
-  { position: Position.Top, style: { left: '66%' }, type: 'any' },
-  { position: Position.Right, style: { top: '50%' }, type: 'any' },
-  { position: Position.Bottom, style: { left: '33%' }, type: 'any' },
-  { position: Position.Bottom, style: { left: '66%' }, type: 'any' },
-  { position: Position.Left, style: { top: '50%' }, type: 'any' },
+    { pos: Position.Top, style: { left: '33%' } },
+    { pos: Position.Top, style: { left: '66%' } },
+    { pos: Position.Right, style: { top: '50%' } },
+    { pos: Position.Bottom, style: { left: '33%' } },
+    { pos: Position.Bottom, style: { left: '66%' } },
+    { pos: Position.Left, style: { top: '50%' } },
 ];
 
 const startHandlePositions = [
-    { position: Position.Bottom, style: { left: '25%' }, type: 'source' },
-    { position: Position.Bottom, style: { left: '50%' }, type: 'source' },
-    { position: Position.Bottom, style: { left: '75%' }, type: 'source' },
+    { pos: Position.Bottom, style: { left: '25%' }, type: 'source' },
+    { pos: Position.Bottom, style: { left: '50%' }, type: 'source' },
+    { pos: Position.Bottom, style: { left: '75%' }, type: 'source' },
 ];
 
 const endHandlePositions = [
-    { position: Position.Top, style: { left: '25%' }, type: 'target' },
-    { position: Position.Top, style: { left: '50%' }, type: 'target' },
-    { position: Position.Top, style: { left: '75%' }, type: 'target' },
+    { pos: Position.Top, style: { left: '25%' }, type: 'target' },
+    { pos: Position.Top, style: { left: '50%' }, type: 'target' },
+    { pos: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
 export function CustomNode({ data, selected, id, type, onSettingsClick, isConnecting }: CustomNodeProps) {
@@ -61,14 +60,45 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
     return data.label;
   }
   
-  const getHandlePositions = () => {
+  const renderHandles = () => {
       switch (data.componentType) {
           case 'start':
-              return startHandlePositions;
+              return startHandlePositions.map((handle, index) => (
+                  <Handle
+                      key={index}
+                      type="source"
+                      position={handle.pos}
+                      id={`${handle.pos}-source-${index}`}
+                      style={handle.style}
+                  />
+              ));
           case 'end':
-              return endHandlePositions;
+              return endHandlePositions.map((handle, index) => (
+                  <Handle
+                      key={index}
+                      type="target"
+                      position={handle.pos}
+                      id={`${handle.pos}-target-${index}`}
+                      style={handle.style}
+                  />
+              ));
           default:
-              return handlePositionsDefault;
+              return handlePositionsDefault.flatMap((handle, index) => [
+                  <Handle
+                      key={`source-${index}`}
+                      type="source"
+                      position={handle.pos}
+                      id={`${handle.pos}-source-${index}`}
+                      style={handle.style}
+                  />,
+                  <Handle
+                      key={`target-${index}`}
+                      type="target"
+                      position={handle.pos}
+                      id={`${handle.pos}-target-${index}`}
+                      style={handle.style}
+                  />
+              ]);
       }
   }
 
@@ -111,15 +141,7 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
             </Button>
         )}
       </Card>
-      {getHandlePositions().map((handle, index) => (
-        <Handle
-            key={index}
-            type={handle.type as any}
-            position={handle.position}
-            id={`${handle.position}-${handle.type}-${index}`}
-            style={handle.style}
-        />
-      ))}
+      {renderHandles()}
     </div>
   );
 }
