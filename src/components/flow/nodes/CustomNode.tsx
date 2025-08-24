@@ -22,14 +22,12 @@ type CustomNodeProps = NodeProps<NodeData> & {
 
 
 const handlePositionsDefault = [
-  { position: Position.Top, style: { left: '50%' }, type: 'source' },
-  { position: Position.Right, style: { top: '50%' }, type: 'source' },
-  { position: Position.Bottom, style: { left: '50%' }, type: 'source' },
-  { position: Position.Left, style: { top: '50%' }, type: 'source' },
-  { position: Position.Top, style: { left: '25%' }, type: 'target' },
-  { position: Position.Top, style: { left: '75%' }, type: 'target' },
-  { position: Position.Bottom, style: { left: '25%' }, type: 'target' },
-  { position: Position.Bottom, style: { left: '75%' }, type: 'target' },
+  { position: Position.Top, style: { left: '33%' }, type: 'any' },
+  { position: Position.Top, style: { left: '66%' }, type: 'any' },
+  { position: Position.Right, style: { top: '50%' }, type: 'any' },
+  { position: Position.Bottom, style: { left: '33%' }, type: 'any' },
+  { position: Position.Bottom, style: { left: '66%' }, type: 'any' },
+  { position: Position.Left, style: { top: '50%' }, type: 'any' },
 ];
 
 const startHandlePositions = [
@@ -88,7 +86,7 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
         className={cn(
             "w-48 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
             selected ? "border-primary/80" : "border-transparent",
-            isConnecting && "border-primary shadow-lg"
+            isConnecting && "border-primary shadow-lg ring-4 ring-primary/20"
         )}
       >
         <CardContent className="p-3">
