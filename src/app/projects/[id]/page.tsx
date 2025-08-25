@@ -41,6 +41,8 @@ import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/flow/SelectionToolbar";
 import { InteractionMode, Project } from "@/lib/type";
 import { projects } from "@/data/projects.json";
+import { useSearchParams } from "next/navigation";
+import { ProjectViewer } from "@/components/flow/ProjectViewer";
 
 const initialNodes: Node[] = [
   {
@@ -53,6 +55,9 @@ const initialNodes: Node[] = [
 const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas({ projectId }: { projectId: string }) {
+  const searchParams = useSearchParams();
+  const isViewOnly = searchParams.get('view') === 'true';
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
   const project = projects.find((p) => p.id === projectId) as Project;
@@ -105,6 +110,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       end: (props: NodeProps) => (
@@ -112,6 +118,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       process: (props: NodeProps) => (
@@ -119,6 +126,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       decision: (props: NodeProps) => (
@@ -126,6 +134,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       delay: (props: NodeProps) => (
@@ -133,6 +142,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       io: (props: NodeProps) => (
@@ -140,6 +150,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
       document: (props: NodeProps) => (
@@ -147,10 +158,11 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
           {...props}
           onSettingsClick={onSettingsClick}
           isConnecting={connectingNode.current?.nodeId === props.id}
+          viewOnly={isViewOnly}
         />
       ),
     }),
-    [onSettingsClick]
+    [onSettingsClick, isViewOnly]
   );
 
   const onConnectStart = useCallback(
@@ -362,6 +374,17 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
     )
   }
 
+  if (isViewOnly) {
+    return (
+      <ProjectViewer 
+        project={project}
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+      />
+    );
+  }
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <Header
@@ -427,8 +450,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   // `React.use` is the canonical way to read a promise (the params object) in a server component.
   const { id } = use(params);
   return (
-    <ReactFlowProvider>
-      <FlowForgeCanvas projectId={id} />
-    </ReactFlowProvider>
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ReactFlowProvider>
+        <FlowForgeCanvas projectId={id} />
+      </ReactFlowProvider>
+    </React.Suspense>
   );
 }

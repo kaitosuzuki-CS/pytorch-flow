@@ -18,6 +18,7 @@ type NodeData = {
 type CustomNodeProps = NodeProps<NodeData> & {
     onSettingsClick: (node: Node<NodeData>) => void;
     isConnecting: boolean;
+    viewOnly?: boolean;
 };
 
 const handlePositionsDefault = [
@@ -41,7 +42,7 @@ const endHandlePositions = [
     { pos: Position.Top, style: { left: '75%' }, type: 'target' },
 ];
 
-export function CustomNode({ data, selected, id, type, onSettingsClick, isConnecting }: CustomNodeProps) {
+export function CustomNode({ data, selected, id, type, onSettingsClick, isConnecting, viewOnly = false }: CustomNodeProps) {
   const componentInfo = getComponentByType(data.componentType);
 
   if (!componentInfo) {
@@ -51,6 +52,8 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
   const Icon = componentInfo.icon;
   
   const renderHandles = () => {
+      if (viewOnly) return null;
+      
       switch (data.componentType) {
           case 'start':
               return startHandlePositions.map((handle, index) => (
@@ -106,9 +109,10 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
     <div className="group">
       <Card 
         className={cn(
-            "w-56 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
+            "w-64 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
             selected ? "border-primary/80" : "border-transparent",
-            isConnecting && "border-primary shadow-lg ring-4 ring-primary/20"
+            isConnecting && "border-primary shadow-lg ring-4 ring-primary/20",
+            viewOnly && "cursor-default"
         )}
       >
         <CardContent className="p-3">
@@ -133,7 +137,7 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
               </div>
           </div>
         </CardContent>
-        {hasParams && (
+        {hasParams && !viewOnly && (
             <Button
                 variant="ghost"
                 size="icon"

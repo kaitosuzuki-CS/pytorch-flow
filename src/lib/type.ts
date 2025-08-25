@@ -1,3 +1,4 @@
+
 export type InteractionMode = "selection" | "pan";
 
 export interface Project {

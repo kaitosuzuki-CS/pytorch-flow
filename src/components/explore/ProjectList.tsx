@@ -44,7 +44,7 @@ export function ProjectList({ projects }: ProjectListProps) {
               </div>
               <div className="flex items-center gap-4 ml-4">
                  <Badge variant="secondary">Public</Badge>
-                 <Link href={`/projects/${project.id}`} passHref>
+                 <Link href={`/projects/${project.id}?view=true`} passHref>
                     <Button variant="outline" size="sm">
                         Open
                         <ArrowRight className="w-4 h-4 ml-2" />
