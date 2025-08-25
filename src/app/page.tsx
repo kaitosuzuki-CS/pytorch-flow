@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, {
@@ -52,7 +53,7 @@ const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
+  const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
   const { state, setState, canUndo, canRedo, undo, redo } = useHistory({
     nodes: initialNodes,
     edges: initialEdges,
@@ -296,6 +297,43 @@ function FlowForgeCanvas() {
     });
   };
 
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const flow = JSON.parse(e.target?.result as string);
+        if (flow && flow.nodes && flow.edges) {
+          setState({
+            nodes: flow.nodes,
+            edges: flow.edges,
+          });
+          const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+          setViewport({ x, y, zoom });
+          toast({
+            title: "Flow Imported",
+            description: "Your flowchart has been successfully imported.",
+          });
+        } else {
+          throw new Error("Invalid JSON structure");
+        }
+      } catch (error) {
+        console.error("Error importing JSON:", error);
+        toast({
+          variant: "destructive",
+          title: "Import Failed",
+          description: "The selected file is not a valid FlowForge JSON.",
+        });
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input to allow re-uploading the same file
+    event.target.value = '';
+  };
+
+
   const onDeleteSelection = () => {
     const selectedNodes = getNodes()
       .filter((n) => n.selected)
@@ -356,6 +394,7 @@ function FlowForgeCanvas() {
     <div className="flex h-screen flex-col bg-background">
       <Header
         onExport={handleExport}
+        onImport={handleImport}
         onUndo={undo}
         onRedo={redo}
         canUndo={canUndo}

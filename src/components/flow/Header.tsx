@@ -1,3 +1,4 @@
+
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,13 @@ import {
   Redo,
   MousePointer,
   Move,
+  Upload,
 } from "lucide-react";
 import { InteractionMode } from "@/lib/type";
 
 type HeaderProps = {
   onExport: () => void;
+  onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onUndo: () => void;
   onRedo: () => void;
   canUndo: boolean;
@@ -23,6 +26,7 @@ type HeaderProps = {
 
 export function Header({
   onExport,
+  onImport,
   onUndo,
   onRedo,
   canUndo,
@@ -34,6 +38,11 @@ export function Header({
     onInteractionModeChange(
       interactionMode === "selection" ? "pan" : "selection"
     );
+  };
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -78,6 +87,17 @@ export function Header({
           aria-label="Redo"
         >
           <Redo className="w-4 h-4" />
+        </Button>
+        <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept=".json"
+            onChange={onImport}
+        />
+        <Button onClick={handleImportClick} variant="outline">
+          <Upload className="w-4 h-4 mr-2" />
+          Import JSON
         </Button>
         <Button onClick={onExport} variant="outline">
           <Download className="w-4 h-4 mr-2" />
