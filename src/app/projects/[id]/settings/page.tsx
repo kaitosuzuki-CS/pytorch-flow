@@ -22,7 +22,7 @@ function ProjectSettingsClient({ projectId }: { projectId: string }) {
     )
   }
 
-  const handleUpdateProject = (data: { name: string; description: string; visibility: 'public' | 'private' }) => {
+  const handleUpdateProject = (data: { name: string; description?: string | undefined; visibility: 'public' | 'private' }) => {
     // In a real application, you would send this data to your backend to update the project.
     console.log('Updating project:', { id: project.id, ...data });
     
@@ -50,7 +50,7 @@ function ProjectSettingsClient({ projectId }: { projectId: string }) {
         defaultValues={{
           name: project.name,
           description: project.description,
-          visibility: project.visibility,
+          visibility: project.visibility as 'public' | 'private',
         }} 
       />
     </div>
@@ -58,6 +58,6 @@ function ProjectSettingsClient({ projectId }: { projectId: string }) {
 }
 
 export default function ProjectSettingsPage({ params }: { params: { id: string } }) {
-  const { id } = React.use(params as any);
+  const { id } = params;
   return <ProjectSettingsClient projectId={id} />;
 }
