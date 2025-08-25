@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -15,6 +16,9 @@ import {
 } from '@/components/ui/tooltip';
 import { components } from '@/lib/flow-components';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '../ui/button';
+import { Import } from 'lucide-react';
+import Link from 'next/link';
 
 export function ComponentSidebar() {
   const onDragStart = (event: React.DragEvent, nodeType: string, componentName: string) => {
@@ -25,8 +29,14 @@ export function ComponentSidebar() {
 
   return (
     <aside className="w-80 border-r bg-card flex flex-col z-10">
-        <div className="p-4 border-b h-16 flex items-center">
+        <div className="p-4 border-b h-16 flex items-center justify-between">
             <h2 className="text-lg font-semibold font-headline">Components</h2>
+            <Link href="/explore" passHref>
+              <Button variant="outline" size="sm">
+                  <Import className="w-4 h-4 mr-2" />
+                  Import Project
+              </Button>
+            </Link>
         </div>
       <TooltipProvider>
         <ScrollArea className="flex-grow">
