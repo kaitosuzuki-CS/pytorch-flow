@@ -49,16 +49,6 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
   }
 
   const Icon = componentInfo.icon;
-
-  const getLabel = () => {
-    if (data.params) {
-        const paramKey = Object.keys(data.params)[0];
-        if (data.params[paramKey]) {
-            return data.params[paramKey];
-        }
-    }
-    return data.label;
-  }
   
   const renderHandles = () => {
       switch (data.componentType) {
@@ -110,6 +100,8 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
     onSettingsClick(node);
   }
 
+  const configuredParams = componentInfo.params.filter(p => data.params && data.params[p.name] !== undefined && data.params[p.name] !== '');
+
   return (
     <div className="group">
       <Card 
@@ -120,13 +112,24 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
         )}
       >
         <CardContent className="p-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3">
               <div className="p-2 bg-accent rounded-md">
                   <Icon className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{getLabel()}</p>
-                  <p className="text-xs text-muted-foreground">{componentInfo.name}</p>
+                  <p className="font-semibold truncate">{componentInfo.name}</p>
+                  <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                    {configuredParams.length > 0 ? (
+                      configuredParams.map(param => (
+                        <div key={param.name} className="truncate">
+                          <span className="font-medium">{param.label}: </span>
+                          <span>{String(data.params[param.name])}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground/70 italic">No properties set</p>
+                    )}
+                  </div>
               </div>
           </div>
         </CardContent>
