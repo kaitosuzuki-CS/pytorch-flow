@@ -305,7 +305,7 @@ function FlowForgeCanvas() {
     reader.onload = (e) => {
       try {
         const flow = JSON.parse(e.target?.result as string);
-        if (flow && flow.nodes && flow.edges) {
+        if (flow && flow.nodes && flow.edges && flow.viewport) {
           setState({
             nodes: flow.nodes,
             edges: flow.edges,
