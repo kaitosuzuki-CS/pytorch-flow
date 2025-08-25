@@ -38,7 +38,6 @@ import { getComponentByType } from "@/lib/flow-components";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/flow/SelectionToolbar";
-import { useHistory } from "@/hooks/use-history";
 import { InteractionMode } from "@/lib/type";
 
 const initialNodes: Node[] = [
@@ -53,14 +52,10 @@ const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
-  const { state, setState, canUndo, canRedo, undo, redo } = useHistory({
-    nodes: initialNodes,
-    edges: initialEdges,
-  });
+  const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
 
-  const { nodes, edges } = state;
-
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const connectingNode = useRef<{
@@ -85,37 +80,15 @@ function FlowForgeCanvas() {
   const hasSelection = selectedNodeCount > 0 || selectedEdgeCount > 0;
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setState(
-        (current) => ({
-          ...current,
-          nodes: applyNodeChanges(changes, current.nodes),
-        }),
-        {
-          skip: changes.every(
-            (change) =>
-              (change.type === "position" && change.dragging) ||
-              change.type === "select"
-          ),
-        }
-      );
-    },
-    [setState]
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-      setState(
-        (current) => ({
-          ...current,
-          edges: applyEdgeChanges(changes, current.edges),
-        }),
-        { skip: changes.every((change) => change.type === "select") }
-      );
-    },
-    [setState]
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
   );
-
+  
   const onSettingsClick = useCallback((node: Node) => {
     setSelectedNode(node);
   }, []);
@@ -203,16 +176,13 @@ function FlowForgeCanvas() {
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      setState((current) => ({
-        ...current,
-        edges: addEdge(params, current.edges),
-      }));
+      setEdges((eds) => addEdge(params, eds));
       setJustConnected(true);
       setTimeout(() => setJustConnected(false), 500); // Reset after animation
       connectingNode.current = null;
       setIsConnecting(false);
     },
-    [setState]
+    [setEdges]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -252,24 +222,20 @@ function FlowForgeCanvas() {
         data: { label: componentName, componentType: nodeType, params },
       };
 
-      setState((current) => ({
-        ...current,
-        nodes: current.nodes.concat(newNode),
-      }));
+      setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setState]
+    [screenToFlowPosition, setNodes]
   );
 
   const onSaveConfig = (nodeId: string, data: any) => {
-    setState((current) => ({
-      ...current,
-      nodes: current.nodes.map((node) => {
+    setNodes((nds) =>
+      nds.map((node) => {
         if (node.id === nodeId) {
           node.data = { ...node.data, params: data };
         }
         return node;
-      }),
-    }));
+      })
+    );
 
     toast({
       title: "Configuration Saved",
@@ -306,42 +272,15 @@ function FlowForgeCanvas() {
       try {
         const flow = JSON.parse(e.target?.result as string);
         if (flow && flow.nodes && flow.edges) {
-          const importSuffix = `_imported_${+new Date()}`;
-          const idMap = new Map<string, string>();
-
-          const newNodes = flow.nodes.map((node: Node) => {
-            const oldId = node.id;
-            const newId = `${oldId}${importSuffix}`;
-            idMap.set(oldId, newId);
-            return {
-              ...node,
-              id: newId,
-            };
-          });
-
-          const newEdges = flow.edges.map((edge: Edge) => {
-            const newSource = idMap.get(edge.source);
-            const newTarget = idMap.get(edge.target);
-            if (!newSource || !newTarget) {
-              return null; // Should not happen in a valid flow
-            }
-            return {
-              ...edge,
-              id: `${edge.id}${importSuffix}`,
-              source: newSource,
-              target: newTarget,
-            };
-          }).filter((e: Edge | null): e is Edge => e !== null);
-
-          setState((current) => ({
-            ...current,
-            nodes: [...current.nodes, ...newNodes],
-            edges: [...current.edges, ...newEdges],
-          }));
+          const { nodes: newNodes, edges: newEdges, viewport } = flow;
+          
+          setNodes(newNodes);
+          setEdges(newEdges);
+          setViewport(viewport);
 
           toast({
-            title: "Flow Merged",
-            description: "The imported flowchart has been added to the canvas.",
+            title: "Flow Imported",
+            description: "The flowchart has been successfully imported.",
           });
         } else {
           throw new Error("Invalid JSON structure");
@@ -368,11 +307,8 @@ function FlowForgeCanvas() {
       .filter((e) => e.selected)
       .map((e) => e.id);
 
-    setState((current) => ({
-      ...current,
-      nodes: current.nodes.filter((n) => !selectedNodes.includes(n.id)),
-      edges: current.edges.filter((e) => !selectedEdges.includes(e.id)),
-    }));
+    setNodes((nds) => nds.filter((n) => !selectedNodes.includes(n.id)));
+    setEdges((eds) => eds.filter((e) => !selectedEdges.includes(e.id)));
 
     toast({
       title: "Selection Deleted",
@@ -395,36 +331,11 @@ function FlowForgeCanvas() {
     onCancelConnection();
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === "z") {
-        if (!event.shiftKey) {
-          undo();
-        } else {
-          redo();
-        }
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key === "y") {
-        redo();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [undo, redo]);
-
   return (
     <div className="flex h-screen flex-col bg-background">
       <Header
         onExport={handleExport}
         onImport={handleImport}
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={canUndo}
-        canRedo={canRedo}
         interactionMode={interactionMode}
         onInteractionModeChange={setInteractionMode}
       />

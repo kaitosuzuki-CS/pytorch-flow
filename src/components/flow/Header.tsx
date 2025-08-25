@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Download,
   Workflow,
-  Undo,
-  Redo,
   MousePointer,
   Move,
   Upload,
@@ -16,10 +14,6 @@ import { InteractionMode } from "@/lib/type";
 type HeaderProps = {
   onExport: () => void;
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
   interactionMode: InteractionMode;
   onInteractionModeChange: (mode: InteractionMode) => void;
 };
@@ -27,10 +21,6 @@ type HeaderProps = {
 export function Header({
   onExport,
   onImport,
-  onUndo,
-  onRedo,
-  canUndo,
-  canRedo,
   interactionMode,
   onInteractionModeChange,
 }: HeaderProps) {
@@ -69,24 +59,6 @@ export function Header({
           ) : (
             <Move className="w-6 h-6" />
           )}
-        </Button>
-        <Button
-          onClick={onUndo}
-          variant="outline"
-          size="icon"
-          disabled={!canUndo}
-          aria-label="Undo"
-        >
-          <Undo className="w-4 h-4" />
-        </Button>
-        <Button
-          onClick={onRedo}
-          variant="outline"
-          size="icon"
-          disabled={!canRedo}
-          aria-label="Redo"
-        >
-          <Redo className="w-4 h-4" />
         </Button>
         <input
             type="file"
