@@ -395,7 +395,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
         onInteractionModeChange={setInteractionMode}
       />
       <main className="flex flex-1 overflow-hidden">
-        <ComponentSidebar />
+        <ComponentSidebar projectId={projectId}/>
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}

@@ -3,21 +3,23 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Project } from '@/lib/type';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Import } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectListProps {
   projects: Project[];
   onProjectSelect: (project: Project) => void;
+  isImportContext: boolean;
 }
 
-export function ProjectList({ projects }: ProjectListProps) {
+export function ProjectList({ projects, isImportContext }: ProjectListProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { toast } = useToast();
 
   const handleTitleClick = (project: Project) => {
     setSelectedProject(project);
@@ -26,6 +28,13 @@ export function ProjectList({ projects }: ProjectListProps) {
   const handleSheetClose = () => {
     setSelectedProject(null);
   };
+
+  const handleImport = (project: Project) => {
+    toast({
+        title: "Project Imported",
+        description: `"${project.name}" is now available in your components panel.`,
+    });
+  }
 
   return (
     <div>
@@ -50,6 +59,12 @@ export function ProjectList({ projects }: ProjectListProps) {
                         <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                  </Link>
+                 {isImportContext && (
+                    <Button variant="default" size="sm" onClick={() => handleImport(project)}>
+                        Import
+                        <Import className="w-4 h-4 ml-2" />
+                    </Button>
+                 )}
               </div>
             </div>
           </div>

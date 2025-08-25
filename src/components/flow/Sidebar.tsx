@@ -20,7 +20,7 @@ import { Button } from '../ui/button';
 import { Import } from 'lucide-react';
 import Link from 'next/link';
 
-export function ComponentSidebar() {
+export function ComponentSidebar({ projectId }: { projectId: string }) {
   const onDragStart = (event: React.DragEvent, nodeType: string, componentName: string) => {
     const data = JSON.stringify({ nodeType, componentName });
     event.dataTransfer.setData('application/reactflow', data);
@@ -31,7 +31,7 @@ export function ComponentSidebar() {
     <aside className="w-80 border-r bg-card flex flex-col z-10">
         <div className="p-4 border-b h-16 flex items-center justify-between">
             <h2 className="text-lg font-semibold font-headline">Components</h2>
-            <Link href="/explore" passHref>
+            <Link href={`/explore?projectId=${projectId}`} passHref>
               <Button variant="outline" size="sm">
                   <Import className="w-4 h-4 mr-2" />
                   Import Project
