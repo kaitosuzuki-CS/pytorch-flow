@@ -106,7 +106,7 @@ export function CustomNode({ data, selected, id, type, onSettingsClick, isConnec
     <div className="group">
       <Card 
         className={cn(
-            "w-48 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
+            "w-56 shadow-md hover:shadow-lg transition-shadow border-2 relative", 
             selected ? "border-primary/80" : "border-transparent",
             isConnecting && "border-primary shadow-lg ring-4 ring-primary/20"
         )}
