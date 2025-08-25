@@ -53,7 +53,7 @@ const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
+  const { screenToFlowPosition, toObject, getNodes, getEdges } = useReactFlow();
   const { state, setState, canUndo, canRedo, undo, redo } = useHistory({
     nodes: initialNodes,
     edges: initialEdges,
@@ -305,16 +305,43 @@ function FlowForgeCanvas() {
     reader.onload = (e) => {
       try {
         const flow = JSON.parse(e.target?.result as string);
-        if (flow && flow.nodes && flow.edges && flow.viewport) {
-          setState({
-            nodes: flow.nodes,
-            edges: flow.edges,
+        if (flow && flow.nodes && flow.edges) {
+          const importSuffix = `_imported_${+new Date()}`;
+          const idMap = new Map<string, string>();
+
+          const newNodes = flow.nodes.map((node: Node) => {
+            const oldId = node.id;
+            const newId = `${oldId}${importSuffix}`;
+            idMap.set(oldId, newId);
+            return {
+              ...node,
+              id: newId,
+            };
           });
-          const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-          setViewport({ x, y, zoom });
+
+          const newEdges = flow.edges.map((edge: Edge) => {
+            const newSource = idMap.get(edge.source);
+            const newTarget = idMap.get(edge.target);
+            if (!newSource || !newTarget) {
+              return null; // Should not happen in a valid flow
+            }
+            return {
+              ...edge,
+              id: `${edge.id}${importSuffix}`,
+              source: newSource,
+              target: newTarget,
+            };
+          }).filter((e: Edge | null): e is Edge => e !== null);
+
+          setState((current) => ({
+            ...current,
+            nodes: [...current.nodes, ...newNodes],
+            edges: [...current.edges, ...newEdges],
+          }));
+
           toast({
-            title: "Flow Imported",
-            description: "Your flowchart has been successfully imported.",
+            title: "Flow Merged",
+            description: "The imported flowchart has been added to the canvas.",
           });
         } else {
           throw new Error("Invalid JSON structure");
@@ -329,8 +356,7 @@ function FlowForgeCanvas() {
       }
     };
     reader.readAsText(file);
-    // Reset file input to allow re-uploading the same file
-    event.target.value = '';
+    event.target.value = "";
   };
 
 
