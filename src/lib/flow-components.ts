@@ -1,11 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
-import { GitBranch, Database, FileText, Play, StopCircle, Square } from 'lucide-react';
+import { GitBranch, Database, FileText, Play, StopCircle, Square, Timer } from 'lucide-react';
 
 export type Param = {
   name: string;
-  type: 'text' | 'textarea';
+  type: 'text' | 'textarea' | 'number';
   label: string;
-  defaultValue: string;
+  defaultValue: string | number;
 };
 
 export type FlowComponent = {
@@ -63,6 +63,15 @@ export const components: ComponentCategory[] = [
           { name: "condition", type: "text", label: "Condition", defaultValue: "Is condition true?" },
         ],
       },
+      {
+        name: "Delay",
+        type: "delay",
+        description: "Represents a delay or wait period in the process.",
+        icon: Timer,
+        params: [
+            { name: "duration", type: "number", label: "Duration (ms)", defaultValue: 1000 },
+        ],
+    },
     ],
   },
   {

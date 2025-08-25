@@ -57,6 +57,8 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
                     <Label htmlFor={param.name}>{param.label}</Label>
                     {param.type === 'textarea' ? (
                         <Textarea id={param.name} {...field} placeholder={`Enter ${param.label}`} rows={4} />
+                    ) : param.type === 'number' ? (
+                        <Input id={param.name} type="number" {...field} placeholder={`Enter ${param.label}`} onChange={(e) => field.onChange(e.target.valueAsNumber)} />
                     ) : (
                         <Input id={param.name} {...field} placeholder={`Enter ${param.label}`} />
                     )}

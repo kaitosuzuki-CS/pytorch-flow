@@ -123,6 +123,13 @@ function FlowForgeCanvas() {
           isConnecting={connectingNode.current?.nodeId === props.id}
         />
       ),
+      delay: (props: NodeProps) => (
+        <CustomNode
+          {...props}
+          onSettingsClick={onSettingsClick}
+          isConnecting={connectingNode.current?.nodeId === props.id}
+        />
+      ),
       io: (props: NodeProps) => (
         <CustomNode
           {...props}
@@ -274,9 +281,20 @@ function FlowForgeCanvas() {
         if (flow && flow.nodes && flow.edges) {
           const { nodes: newNodes, edges: newEdges, viewport } = flow;
           
-          setNodes(newNodes);
-          setEdges(newEdges);
-          setViewport(viewport);
+          const remappedNodes = newNodes.map((node: Node) => ({
+            ...node,
+            id: `${node.id}-${+new Date()}`,
+          }));
+  
+          const remappedEdges = newEdges.map((edge: Edge) => ({
+            ...edge,
+            id: `${edge.id}-${+new Date()}`,
+            source: `${edge.source}-${+new Date()}`,
+            target: `${edge.target}-${+new Date()}`,
+          }));
+
+          setNodes((nds) => nds.concat(remappedNodes));
+          setEdges((eds) => eds.concat(remappedEdges));
 
           toast({
             title: "Flow Imported",
