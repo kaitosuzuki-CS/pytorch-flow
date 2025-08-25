@@ -39,6 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/flow/SelectionToolbar";
 import { InteractionMode } from "@/lib/type";
+import { projects } from "@/data/projects.json";
 
 const initialNodes: Node[] = [
   {
@@ -50,9 +51,10 @@ const initialNodes: Node[] = [
 ];
 const initialEdges: Edge[] = [];
 
-function FlowForgeCanvas() {
+function FlowForgeCanvas({ projectId }: { projectId: string }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
+  const project = projects.find((p) => p.id === projectId);
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
@@ -281,7 +283,7 @@ function FlowForgeCanvas() {
       try {
         const flow = JSON.parse(e.target?.result as string);
         if (flow && flow.nodes && flow.edges) {
-          const { nodes: newNodes, edges: newEdges, viewport } = flow;
+          const { nodes: newNodes, edges: newEdges } = flow;
           
           const remappedNodes = newNodes.map((node: Node) => ({
             ...node,
@@ -350,10 +352,19 @@ function FlowForgeCanvas() {
     setSelectedNode(null);
     onCancelConnection();
   };
+  
+  if (!project) {
+    return (
+        <div className="flex h-screen items-center justify-center">
+            <p>Project not found.</p>
+        </div>
+    )
+  }
 
   return (
     <div className="flex h-screen flex-col bg-background">
       <Header
+        project={project}
         onExport={handleExport}
         onImport={handleImport}
         interactionMode={interactionMode}
@@ -410,10 +421,10 @@ function FlowForgeCanvas() {
   );
 }
 
-export default function ProjectPage() {
+export default function ProjectPage({ params }: { params: { id: string } }) {
   return (
     <ReactFlowProvider>
-      <FlowForgeCanvas />
+      <FlowForgeCanvas projectId={params.id} />
     </ReactFlowProvider>
   );
 }

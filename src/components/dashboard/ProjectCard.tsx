@@ -4,15 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  "data-ai-hint": string;
-}
+import { ArrowRight, Settings } from 'lucide-react';
+import type { Project } from '@/lib/type';
+import { Badge } from '../ui/badge';
 
 interface ProjectCardProps {
   project: Project;
@@ -33,14 +27,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <CardTitle className="font-headline text-xl">{project.name}</CardTitle>
+        <div className="flex justify-between items-start">
+          <CardTitle className="font-headline text-xl">{project.name}</CardTitle>
+          <Badge variant={project.visibility === 'public' ? 'secondary' : 'outline'}>
+            {project.visibility.charAt(0).toUpperCase() + project.visibility.slice(1)}
+          </Badge>
+        </div>
         <CardDescription className="mt-2">{project.description}</CardDescription>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex gap-2">
         <Link href={`/projects/${project.id}`} passHref className="w-full">
           <Button variant="outline" className="w-full">
             Open Project
             <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
+        <Link href={`/projects/${project.id}/settings`} passHref>
+          <Button variant="ghost" size="icon">
+            <Settings className="w-5 h-5" />
+            <span className="sr-only">Project Settings</span>
           </Button>
         </Link>
       </CardFooter>

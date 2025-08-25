@@ -4,6 +4,7 @@
       "id": "1",
       "name": "Customer Onboarding Flow",
       "description": "The standard flow for onboarding new enterprise customers.",
+      "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "flowchart diagram"
     },
@@ -11,6 +12,7 @@
       "id": "2",
       "name": "Marketing Campaign Process",
       "description": "End-to-end process for launching a new marketing campaign.",
+      "visibility": "private",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "marketing process"
     },
@@ -18,6 +20,7 @@
       "id": "3",
       "name": "Software Development Lifecycle",
       "description": "Agile SDLC from planning to deployment and maintenance.",
+      "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "software development"
     },
@@ -25,6 +28,7 @@
       "id": "4",
       "name": "HR Recruitment Pipeline",
       "description": "The complete pipeline for recruiting new talent.",
+      "visibility": "private",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "recruitment process"
     }
