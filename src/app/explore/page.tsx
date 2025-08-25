@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Project } from '@/lib/type';
 import { projects as allProjects } from '@/data/projects.json';
@@ -18,10 +18,34 @@ export default function ExplorePage() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
 
-  const filteredProjects = publicProjects.filter(project =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return publicProjects;
+    }
+
+    const searchWords = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const rankedProjects = publicProjects.map(project => {
+      let score = 0;
+      const name = project.name.toLowerCase();
+      const description = project.description?.toLowerCase() || '';
+
+      searchWords.forEach(word => {
+        if (name.includes(word)) {
+          score += 2; // Higher weight for title matches
+        }
+        if (description.includes(word)) {
+          score += 1;
+        }
+      });
+
+      return { ...project, score };
+    })
+    .filter(project => project.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+    return rankedProjects;
+  }, [searchQuery, publicProjects]);
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
