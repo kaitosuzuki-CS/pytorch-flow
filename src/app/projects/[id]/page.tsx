@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  use
 } from "react";
 import ReactFlow, {
   ReactFlowProvider,
@@ -38,7 +39,7 @@ import { getComponentByType } from "@/lib/flow-components";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/flow/SelectionToolbar";
-import { InteractionMode } from "@/lib/type";
+import { InteractionMode, Project } from "@/lib/type";
 import { projects } from "@/data/projects.json";
 
 const initialNodes: Node[] = [
@@ -54,7 +55,7 @@ const initialEdges: Edge[] = [];
 function FlowForgeCanvas({ projectId }: { projectId: string }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
-  const project = projects.find((p) => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId) as Project;
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
@@ -422,9 +423,9 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
 }
 
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   // `React.use` is the canonical way to read a promise (the params object) in a server component.
-  const { id } = React.use(params as any);
+  const { id } = use(params);
   return (
     <ReactFlowProvider>
       <FlowForgeCanvas projectId={id} />

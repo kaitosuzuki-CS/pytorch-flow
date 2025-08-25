@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { projects } from '@/data/projects.json';
 import { ProjectCard } from '@/components/dashboard/ProjectCard';
 import { Plus } from 'lucide-react';
+import { Project } from '@/lib/type';
 
 export default function DashboardPage() {
   return (
@@ -21,7 +22,7 @@ export default function DashboardPage() {
       <main className="p-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project as unknown as Project} />
           ))}
         </div>
       </main>

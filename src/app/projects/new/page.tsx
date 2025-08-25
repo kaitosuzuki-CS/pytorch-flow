@@ -9,7 +9,7 @@ export default function NewProjectPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleCreateProject = (data: { name: string; description: string; visibility: 'public' | 'private' }) => {
+  const handleCreateProject = (data: { name: string; description?: string; visibility: 'public' | 'private' }) => {
     // In a real application, you would send this data to your backend to create a new project.
     // For now, we'll just show a toast and redirect.
     const newProjectId = `proj-${Date.now()}`;
