@@ -8,13 +8,20 @@ import { projects as allProjects } from '@/data/projects.json';
 import { ProjectList } from '@/components/explore/ProjectList';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function ExplorePage() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const publicProjects = allProjects.filter(p => p.visibility === 'public') as unknown as Project[];
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
+
+  const filteredProjects = publicProjects.filter(project =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
@@ -27,8 +34,18 @@ export default function ExplorePage() {
           </Button>
         </Link>
       </div>
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Input
+            type="text"
+            placeholder="Search projects by name or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10"
+        />
+      </div>
       <ProjectList 
-        projects={publicProjects} 
+        projects={filteredProjects} 
         onProjectSelect={setSelectedProject}
         isImportContext={!!projectId}
       />
