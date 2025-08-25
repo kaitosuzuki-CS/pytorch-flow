@@ -283,7 +283,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
       try {
         const flow = JSON.parse(e.target?.result as string);
         if (flow && flow.nodes && flow.edges) {
-          const { nodes: newNodes, edges: newEdges } = flow;
+          const { nodes: newNodes, edges: newEdges, viewport } = flow;
           
           const remappedNodes = newNodes.map((node: Node) => ({
             ...node,
@@ -421,12 +421,10 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
   );
 }
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params: { id } }: { params: { id: string } }) {
   return (
     <ReactFlowProvider>
-      <FlowForgeCanvas projectId={params.id} />
+      <FlowForgeCanvas projectId={id} />
     </ReactFlowProvider>
   );
 }
-
-    
