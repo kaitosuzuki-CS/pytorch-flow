@@ -3,11 +3,12 @@ import { GitBranch, Database, FileText, Play, StopCircle, Square, Timer } from '
 
 export type Param = {
   name: string;
-  type: 'text' | 'textarea' | 'number';
+  type: 'text' | 'textarea' | 'number' | 'boolean' | 'select';
   label: string;
-  defaultValue: string | number;
+  defaultValue: string | number | boolean;
   required?: boolean;
   optional?: boolean;
+  options?: string[];
 };
 
 export type FlowComponent = {
@@ -63,6 +64,7 @@ export const components: ComponentCategory[] = [
         icon: GitBranch,
         params: [
           { name: "condition", type: "text", label: "Condition", defaultValue: "Is condition true?", required: true },
+          { name: "isAutomated", type: "boolean", label: "Automated", defaultValue: true, optional: true },
         ],
       },
       {
@@ -86,6 +88,7 @@ export const components: ComponentCategory[] = [
         icon: Database,
         params: [
           { name: "dataName", type: "text", label: "Data Name", defaultValue: "Data", required: true },
+          { name: "source", type: "select", label: "Data Source", defaultValue: "database", options: ["database", "api", "file", "user_input"] }
         ],
       },
       {

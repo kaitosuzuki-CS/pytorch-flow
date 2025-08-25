@@ -19,6 +19,8 @@ import { Node } from 'reactflow';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { cn } from '@/lib/utils';
+import { Switch } from '../ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 type ConfigPanelProps = {
   node: Node | null;
@@ -68,59 +70,93 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
   
   const renderField = (param: Param, index: number) => {
     const fieldName = param.name;
-    const isOptionalActive = param.optional ? watchedOptionalFields[index] : false;
+    const isOptionalActive = param.optional ? watchedOptionalFields[index] : true;
+
+    const fieldContent = () => {
+      switch (param.type) {
+        case 'textarea':
+          return <Textarea id={param.name} placeholder={`Enter ${param.label}`} rows={4} />;
+        case 'number':
+          return <Input id={param.name} type="number" placeholder={`Enter ${param.label}`} onChange={(e) => e.target.valueAsNumber} />;
+        case 'boolean':
+          return (
+            ({ field }: any) => (
+            <div className="flex items-center space-x-2 h-10">
+                <Switch
+                    id={param.name}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                />
+                <Label htmlFor={param.name}>{field.value ? "True" : "False"}</Label>
+            </div>
+            )
+          );
+        case 'select':
+          return (
+            ({ field }: any) => (
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                        <SelectValue placeholder={`Select ${param.label}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {param.options?.map(option => (
+                            <SelectItem key={option} value={option}>{option.charAt(0).toUpperCase() + option.slice(1).replace(/_/g, ' ')}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )
+          );
+        default:
+          return <Input id={param.name} placeholder={`Enter ${param.label}`} />;
+      }
+    };
 
     return (
-        <div key={param.name} className="space-y-2">
-            {param.optional && (
-                <div className="flex items-center space-x-2">
-                    <Controller
-                        name={`${param.name}__active`}
-                        control={control}
-                        defaultValue={false}
-                        render={({ field }) => (
-                           <Checkbox
-                             id={`${param.name}__active`}
-                             checked={field.value}
-                             onCheckedChange={field.onChange}
-                           />
-                        )}
-                    />
-                    <Label htmlFor={`${param.name}__active`} className="font-normal">
-                        Enable {param.label}
-                    </Label>
-                </div>
-            )}
-            <div className={cn("grid gap-2", (param.optional && !isOptionalActive) && "hidden")}>
-                <Label htmlFor={param.name}>
-                    {param.label}
-                    {param.required && <span className="text-destructive">*</span>}
-                </Label>
-                <Controller
-                    name={param.name}
-                    control={control}
-                    defaultValue={param.defaultValue}
-                    rules={{ required: param.required ? `${param.label} is required` : false }}
-                    render={({ field }) => (
-                       <>
-                         {param.type === 'textarea' ? (
-                            <Textarea id={param.name} {...field} placeholder={`Enter ${param.label}`} rows={4} />
-                        ) : param.type === 'number' ? (
-                            <Input id={param.name} type="number" {...field} placeholder={`Enter ${param.label}`} onChange={(e) => field.onChange(e.target.valueAsNumber)} />
-                        ) : (
-                            <Input id={param.name} {...field} placeholder={`Enter ${param.label}`} />
-                        )}
-                       </>
-                    )}
+      <div key={param.name} className="space-y-2">
+        {param.optional && (
+          <div className="flex items-center space-x-2">
+            <Controller
+              name={`${param.name}__active`}
+              control={control}
+              defaultValue={false}
+              render={({ field }) => (
+                <Checkbox
+                  id={`${param.name}__active`}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
                 />
-                 {errors[param.name] && <p className="text-sm text-destructive">{errors[param.name]?.message as string}</p>}
-            </div>
+              )}
+            />
+            <Label htmlFor={`${param.name}__active`} className="font-normal">
+              Enable {param.label}
+            </Label>
+          </div>
+        )}
+        <div className={cn("grid gap-2", !isOptionalActive && "hidden")}>
+          <Label htmlFor={param.name}>
+            {param.label}
+            {param.required && !param.optional && <span className="text-destructive">*</span>}
+          </Label>
+          <Controller
+            name={param.name}
+            control={control}
+            defaultValue={param.defaultValue}
+            rules={{ required: param.required && isOptionalActive ? `${param.label} is required` : false }}
+            render={({ field }) => {
+              const content = fieldContent();
+              if (typeof content === 'function') {
+                return content({ field });
+              }
+              return React.cloneElement(content, { ...field });
+            }}
+          />
+          {errors[param.name] && <p className="text-sm text-destructive">{errors[param.name]?.message as string}</p>}
         </div>
-    )
-  }
+      </div>
+    );
+  };
 
   const optionalParamStartIndex = componentInfo?.params.findIndex(p => p.optional) ?? -1;
-
 
   return (
     <Sheet open={!!node} onOpenChange={(open) => !open && onClose()}>
