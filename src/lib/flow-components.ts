@@ -6,6 +6,8 @@ export type Param = {
   type: 'text' | 'textarea' | 'number';
   label: string;
   defaultValue: string | number;
+  required?: boolean;
+  optional?: boolean;
 };
 
 export type FlowComponent = {
@@ -50,8 +52,8 @@ export const components: ComponentCategory[] = [
         description: "Represents a single step or operation in the process.",
         icon: Square,
         params: [
-          { name: "processName", type: "text", label: "Process Name", defaultValue: "Untitled Process" },
-          { name: "details", type: "textarea", label: "Details", defaultValue: "Add process details here..." },
+          { name: "processName", type: "text", label: "Process Name", defaultValue: "Untitled Process", required: true },
+          { name: "details", type: "textarea", label: "Details", defaultValue: "Add process details here...", optional: true },
         ],
       },
       {
@@ -60,7 +62,7 @@ export const components: ComponentCategory[] = [
         description: "A point where the flow branches based on a condition.",
         icon: GitBranch,
         params: [
-          { name: "condition", type: "text", label: "Condition", defaultValue: "Is condition true?" },
+          { name: "condition", type: "text", label: "Condition", defaultValue: "Is condition true?", required: true },
         ],
       },
       {
@@ -69,7 +71,7 @@ export const components: ComponentCategory[] = [
         description: "Represents a delay or wait period in the process.",
         icon: Timer,
         params: [
-            { name: "duration", type: "number", label: "Duration (ms)", defaultValue: 1000 },
+            { name: "duration", type: "number", label: "Duration (ms)", defaultValue: 1000, required: true },
         ],
     },
     ],
@@ -83,7 +85,7 @@ export const components: ComponentCategory[] = [
         description: "Represents data being input to or output from the process.",
         icon: Database,
         params: [
-          { name: "dataName", type: "text", label: "Data Name", defaultValue: "Data" },
+          { name: "dataName", type: "text", label: "Data Name", defaultValue: "Data", required: true },
         ],
       },
       {
@@ -92,7 +94,7 @@ export const components: ComponentCategory[] = [
         description: "Represents a document or report.",
         icon: FileText,
         params: [
-          { name: "documentName", type: "text", label: "Document Name", defaultValue: "Untitled Document" },
+          { name: "documentName", type: "text", label: "Document Name", defaultValue: "Untitled Document", required: true },
         ],
       },
     ],
