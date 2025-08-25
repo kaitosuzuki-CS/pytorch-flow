@@ -10,6 +10,8 @@ import type { Project } from '@/lib/type';
 import Link from 'next/link';
 import { ArrowRight, Import } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { projects as allProjects } from '@/data/projects.json';
+import { useStore } from '@/hooks/use-app-store';
 
 interface ProjectListProps {
   projects: Project[];
@@ -20,6 +22,7 @@ interface ProjectListProps {
 export function ProjectList({ projects, isImportContext }: ProjectListProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const { toast } = useToast();
+  const { addImportedProject } = useStore();
 
   const handleTitleClick = (project: Project) => {
     setSelectedProject(project);
@@ -29,11 +32,21 @@ export function ProjectList({ projects, isImportContext }: ProjectListProps) {
     setSelectedProject(null);
   };
 
-  const handleImport = (project: Project) => {
-    toast({
-        title: "Project Imported",
-        description: `"${project.name}" is now available in your components panel.`,
-    });
+  const handleImport = (projectToImport: Project) => {
+    const fullProject = allProjects.find(p => p.id === projectToImport.id);
+    if (fullProject) {
+        addImportedProject({
+            id: fullProject.id,
+            name: fullProject.name,
+            description: fullProject.description,
+            nodes: fullProject.nodes || [],
+            edges: fullProject.edges || [],
+        });
+        toast({
+            title: "Project Imported",
+            description: `"${fullProject.name}" is now available in your components panel.`,
+        });
+    }
   }
 
   return (

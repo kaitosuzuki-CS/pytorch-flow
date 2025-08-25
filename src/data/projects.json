@@ -1,3 +1,4 @@
+
 {
   "projects": [
     {
@@ -6,7 +7,24 @@
       "description": "The standard flow for onboarding new enterprise customers.",
       "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
-      "data-ai-hint": "flowchart diagram"
+      "data-ai-hint": "flowchart diagram",
+      "nodes": [
+        { "id": "start-1", "type": "start", "position": { "x": 100, "y": 100 }, "data": { "label": "Start Onboarding" } },
+        { "id": "process-1", "type": "process", "position": { "x": 300, "y": 100 }, "data": { "label": "Verify Customer Email" } },
+        { "id": "decision-1", "type": "decision", "position": { "x": 500, "y": 100 }, "data": { "label": "Email Verified?" } },
+        { "id": "process-2", "type": "process", "position": { "x": 700, "y": 0 }, "data": { "label": "Setup Account" } },
+        { "id": "end-1", "type": "end", "position": { "x": 900, "y": 0 }, "data": { "label": "End" } },
+        { "id": "process-3", "type": "process", "position": { "x": 700, "y": 200 }, "data": { "label": "Send Verification Email" } },
+        { "id": "end-2", "type": "end", "position": { "x": 900, "y": 200 }, "data": { "label": "End" } }
+      ],
+      "edges": [
+        { "id": "e1-2", "source": "start-1", "target": "process-1" },
+        { "id": "e2-3", "source": "process-1", "target": "decision-1" },
+        { "id": "e3-4", "source": "decision-1", "target": "process-2", "label": "Yes" },
+        { "id": "e4-5", "source": "process-2", "target": "end-1" },
+        { "id": "e3-6", "source": "decision-1", "target": "process-3", "label": "No" },
+        { "id": "e6-7", "source": "process-3", "target": "end-2" }
+      ]
     },
     {
       "id": "2",
@@ -22,7 +40,20 @@
       "description": "Agile SDLC from planning to deployment and maintenance.",
       "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
-      "data-ai-hint": "software development"
+      "data-ai-hint": "software development",
+      "nodes": [
+        { "id": "plan", "type": "process", "position": { "x": 0, "y": 0 }, "data": { "label": "Planning" } },
+        { "id": "design", "type": "process", "position": { "x": 200, "y": 0 }, "data": { "label": "Design" } },
+        { "id": "build", "type": "process", "position": { "x": 400, "y": 0 }, "data": { "label": "Build" } },
+        { "id": "test", "type": "process", "position": { "x": 600, "y": 0 }, "data": { "label": "Test" } },
+        { "id": "deploy", "type": "process", "position": { "x": 800, "y": 0 }, "data": { "label": "Deploy" } }
+      ],
+      "edges": [
+        { "id": "e-plan-design", "source": "plan", "target": "design" },
+        { "id": "e-design-build", "source": "design", "target": "build" },
+        { "id": "e-build-test", "source": "build", "target": "test" },
+        { "id": "e-test-deploy", "source": "test", "target": "deploy" }
+      ]
     },
     {
       "id": "4",

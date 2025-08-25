@@ -28,6 +28,10 @@ import ReactFlow, {
   applyEdgeChanges,
   NodeChange,
   EdgeChange,
+  getNodesBounds,
+  getIncomers,
+  getOutgoers,
+  getConnectedEdges
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -39,10 +43,11 @@ import { getComponentByType } from "@/lib/flow-components";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/flow/SelectionToolbar";
-import { InteractionMode, Project } from "@/lib/type";
-import { projects } from "@/data/projects.json";
+import { InteractionMode, Project, ImportedProject } from "@/lib/type";
+import { projects as allProjects } from "@/data/projects.json";
 import { useSearchParams } from "next/navigation";
 import { ProjectViewer } from "@/components/flow/ProjectViewer";
+import { useStore as useAppStore } from '@/hooks/use-app-store';
 
 const initialNodes: Node[] = [
   {
@@ -57,13 +62,14 @@ const initialEdges: Edge[] = [];
 function FlowForgeCanvas({ projectId }: { projectId: string }) {
   const searchParams = useSearchParams();
   const isViewOnly = searchParams.get('view') === 'true';
+  const { importedProjects, addImportedProject } = useAppStore();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport } = useReactFlow();
-  const project = projects.find((p) => p.id === projectId) as Project;
+  const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport, getIntersectingNodes } = useReactFlow();
+  const project = allProjects.find((p) => p.id === projectId) as Project;
 
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(project.nodes || initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(project.edges || initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const connectingNode = useRef<{
@@ -224,15 +230,55 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
       if (typeof type === "undefined" || !type) {
         return;
       }
-
-      const { nodeType, componentName } = JSON.parse(type);
-      const componentInfo = getComponentByType(nodeType);
-      if (!componentInfo) return;
-
+      
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
+
+      const { nodeType, componentName, isProject } = JSON.parse(type);
+      
+      if (isProject) {
+        const importedProject = allProjects.find(p => p.id === nodeType);
+        if (!importedProject || !importedProject.nodes || !importedProject.edges) return;
+
+        const { nodes: importedNodes, edges: importedEdges } = importedProject;
+        
+        const bounds = getNodesBounds(importedNodes);
+        const offsetX = position.x - bounds.x;
+        const offsetY = position.y - bounds.y;
+        
+        const timestamp = +new Date();
+        const idMap = new Map<string, string>();
+        
+        const newNodes = importedNodes.map(node => {
+          const newId = `${node.id}-${timestamp}`;
+          idMap.set(node.id, newId);
+          return {
+            ...node,
+            id: newId,
+            position: {
+              x: node.position.x + offsetX,
+              y: node.position.y + offsetY,
+            }
+          };
+        });
+
+        const newEdges = importedEdges.map(edge => ({
+          ...edge,
+          id: `${edge.id}-${timestamp}`,
+          source: idMap.get(edge.source) || edge.source,
+          target: idMap.get(edge.target) || edge.target,
+        }));
+
+        setNodes(nds => nds.concat(newNodes));
+        setEdges(eds => eds.concat(newEdges));
+        return;
+      }
+
+
+      const componentInfo = getComponentByType(nodeType);
+      if (!componentInfo) return;
 
       const params = componentInfo.params.reduce((acc, param) => {
         acc[param.name] = param.defaultValue;
@@ -248,7 +294,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setNodes]
+    [screenToFlowPosition, setNodes, setEdges]
   );
 
   const onSaveConfig = (nodeId: string, data: any) => {
@@ -336,18 +382,22 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
 
   const onDeleteSelection = () => {
     const selectedNodes = getNodes()
-      .filter((n) => n.selected)
-      .map((n) => n.id);
+      .filter((n) => n.selected);
     const selectedEdges = getEdges()
-      .filter((e) => e.selected)
-      .map((e) => e.id);
+      .filter((e) => e.selected);
 
-    setNodes((nds) => nds.filter((n) => !selectedNodes.includes(n.id)));
-    setEdges((eds) => eds.filter((e) => !selectedEdges.includes(e.id)));
+    const nodesToRemove = new Set(selectedNodes.map(n => n.id));
+    
+    // Also remove edges connected to the selected nodes
+    const connectedEdges = getConnectedEdges(selectedNodes, getEdges());
+    const edgesToRemove = new Set([...selectedEdges, ...connectedEdges].map(e => e.id));
+
+    setNodes((nds) => nds.filter((n) => !nodesToRemove.has(n.id)));
+    setEdges((eds) => eds.filter((e) => !edgesToRemove.has(e.id)));
 
     toast({
       title: "Selection Deleted",
-      description: `Deleted ${selectedNodes.length} nodes and ${selectedEdges.length} edges.`,
+      description: `Deleted ${nodesToRemove.size} nodes and ${edgesToRemove.size} edges.`,
     });
   };
 
@@ -395,7 +445,7 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
         onInteractionModeChange={setInteractionMode}
       />
       <main className="flex flex-1 overflow-hidden">
-        <ComponentSidebar projectId={projectId}/>
+        <ComponentSidebar projectId={projectId} importedProjects={importedProjects} />
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
