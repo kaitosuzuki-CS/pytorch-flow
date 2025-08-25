@@ -421,7 +421,10 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
   );
 }
 
-export default function ProjectPage({ params: { id } }: { params: { id: string } }) {
+
+export default function ProjectPage({ params }: { params: { id: string } }) {
+  // `React.use` is the canonical way to read a promise (the params object) in a server component.
+  const { id } = React.use(params as any);
   return (
     <ReactFlowProvider>
       <FlowForgeCanvas projectId={id} />
