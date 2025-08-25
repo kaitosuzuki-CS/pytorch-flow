@@ -16,6 +16,7 @@ import { ArrowLeft, Workflow } from 'lucide-react';
 import Link from 'next/link';
 import { Project } from '@/lib/type';
 import { Badge } from '../ui/badge';
+import { useSearchParams } from 'next/navigation';
 
 interface ProjectViewerProps {
     project: Project;
@@ -25,6 +26,11 @@ interface ProjectViewerProps {
 }
 
 export function ProjectViewer({ project, nodes, edges, nodeTypes }: ProjectViewerProps) {
+  const searchParams = useSearchParams();
+  const fromProjectId = searchParams.get('fromProjectId');
+
+  const backLink = fromProjectId ? `/explore?projectId=${fromProjectId}` : '/explore';
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <header className="flex items-center justify-between h-16 px-6 bg-background border-b z-20">
@@ -35,7 +41,7 @@ export function ProjectViewer({ project, nodes, edges, nodeTypes }: ProjectViewe
             </h1>
         </div>
         <div className="flex items-center gap-2">
-            <Link href="/explore" passHref>
+            <Link href={backLink} passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Explore

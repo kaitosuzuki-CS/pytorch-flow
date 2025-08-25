@@ -12,6 +12,7 @@ import { ArrowRight, Import } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { projects as allProjects } from '@/data/projects.json';
 import { useStore } from '@/hooks/use-app-store';
+import { useSearchParams } from 'next/navigation';
 
 interface ProjectListProps {
   projects: Project[];
@@ -23,6 +24,8 @@ export function ProjectList({ projects, isImportContext }: ProjectListProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const { toast } = useToast();
   const { addImportedProject } = useStore();
+  const searchParams = useSearchParams();
+  const fromProjectId = searchParams.get('projectId');
 
   const handleTitleClick = (project: Project) => {
     setSelectedProject(project);
@@ -66,7 +69,10 @@ export function ProjectList({ projects, isImportContext }: ProjectListProps) {
               </div>
               <div className="flex items-center gap-4 ml-4">
                  <Badge variant="secondary">Public</Badge>
-                 <Link href={`/projects/${project.id}?view=true`} passHref>
+                 <Link 
+                    href={`/projects/${project.id}?view=true${fromProjectId ? `&fromProjectId=${fromProjectId}` : ''}`} 
+                    passHref
+                 >
                     <Button variant="outline" size="sm">
                         Open
                         <ArrowRight className="w-4 h-4 ml-2" />
