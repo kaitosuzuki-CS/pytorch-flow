@@ -22,7 +22,7 @@ export default function NewProjectPage() {
 
     // We can't dynamically add to the JSON file, so we'll redirect to the dashboard.
     // In a real app, you'd redirect to `/projects/${newProjectId}`
-    router.push('/');
+    router.push('/dashboard');
   };
 
   return (
