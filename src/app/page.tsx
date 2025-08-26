@@ -14,9 +14,6 @@ export default function HomePage() {
           </h1>
         </Link>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard">
-            <Button variant="ghost">Sign In</Button>
-          </Link>
           <Link href="/get-started">
             <Button>Get Started</Button>
           </Link>

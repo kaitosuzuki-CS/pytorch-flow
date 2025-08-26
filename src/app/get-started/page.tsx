@@ -31,7 +31,7 @@ export default function GetStartedPage() {
                 </Link>
             </div>
             <Card>
-                <CardHeader>
+                <CardHeader className="text-center">
                     <CardTitle className="font-headline text-2xl">Get Started</CardTitle>
                     <CardDescription>Sign in to your account to continue.</CardDescription>
                 </CardHeader>
