@@ -61,15 +61,15 @@ const initialEdges: Edge[] = [];
 
 function FlowForgeCanvas({ projectId }: { projectId: string }) {
   const searchParams = useSearchParams();
-  const isViewOnly = searchParams.get('view') === 'true';
+  const isViewParam = searchParams.get('view') === 'true';
   const { importedProjects, addImportedProject } = useAppStore();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, toObject, getNodes, getEdges, setViewport, getIntersectingNodes } = useReactFlow();
   const project = allProjects.find((p) => p.id === projectId) as Project;
 
-  const [nodes, setNodes] = useState<Node[]>(project.nodes || initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(project.edges || initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(project?.nodes || initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(project?.edges || initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const connectingNode = useRef<{
@@ -108,6 +108,8 @@ function FlowForgeCanvas({ projectId }: { projectId: string }) {
   const onSettingsClick = useCallback((node: Node) => {
     setSelectedNode(node);
   }, []);
+
+  const isViewOnly = isViewParam || project?.visibility === 'public';
 
   const nodeTypes = useMemo(
     () => ({

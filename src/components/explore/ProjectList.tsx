@@ -70,7 +70,7 @@ export function ProjectList({ projects, isImportContext }: ProjectListProps) {
               <div className="flex items-center gap-4 ml-4">
                  <Badge variant="secondary">Public</Badge>
                  <Link 
-                    href={`/projects/${project.id}?view=true${fromProjectId ? `&fromProjectId=${fromProjectId}` : ''}`} 
+                    href={`/projects/${project.id}`} 
                     passHref
                  >
                     <Button variant="outline" size="sm">
