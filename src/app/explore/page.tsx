@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const publicProjects = allProjects.filter(p => p.visibility === 'public') as unknown as Project[];
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -48,10 +47,10 @@ export default function ExplorePage() {
   }, [searchQuery, publicProjects]);
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4">
+    <div className="max-w-4xl mx-auto py-10 px-4 h-screen flex flex-col">
        <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold font-headline">Explore Public Projects</h1>
-        <Link href={projectId ? `/projects/${projectId}`: "/"} passHref>
+        <Link href={projectId ? `/projects/${projectId}`: "/dashboard"} passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to {projectId ? 'Project' : 'Dashboard'}
@@ -70,7 +69,7 @@ export default function ExplorePage() {
       </div>
       <ProjectList 
         projects={filteredProjects} 
-        onProjectSelect={setSelectedProject}
+        onOpenProject={() => {}}
         isImportContext={!!projectId}
       />
     </div>
