@@ -30,7 +30,7 @@
       "id": "2",
       "name": "Marketing Campaign Process",
       "description": "End-to-end process for launching a new marketing campaign.",
-      "visibility": "private",
+      "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "marketing process"
     },
@@ -59,7 +59,7 @@
       "id": "4",
       "name": "HR Recruitment Pipeline",
       "description": "The complete pipeline for recruiting new talent.",
-      "visibility": "private",
+      "visibility": "public",
       "imageUrl": "https://placehold.co/600x400.png",
       "data-ai-hint": "recruitment process"
     }
