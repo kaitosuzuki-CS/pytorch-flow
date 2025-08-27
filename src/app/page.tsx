@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 "use client";
 
 import React, { useState, useRef, useCallback, useMemo } from 'react';
@@ -164,6 +165,12 @@ function FlowForgeCanvas() {
       </main>
     </div>
   );
+=======
+import HomeScreen from "@/components/screens/homeScreen";
+
+export default function HomePage() {
+  return <HomeScreen />;
+>>>>>>> Stashed changes
 }
 
 export default function Home() {
