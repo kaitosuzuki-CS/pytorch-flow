@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Project } from '@/lib/type';
 import { projects as allProjects } from '@/data/projects.json';
@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-export default function ExplorePage() {
+function ExplorePageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const publicProjects = allProjects.filter(p => p.visibility === 'public') as unknown as Project[];
   const searchParams = useSearchParams();
@@ -74,4 +74,19 @@ export default function ExplorePage() {
       />
     </div>
   );
+}
+
+export default function ExplorePage() {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        // Render a loading state or null on the server to avoid mismatch
+        return null;
+    }
+
+    return <ExplorePageContent />;
 }
