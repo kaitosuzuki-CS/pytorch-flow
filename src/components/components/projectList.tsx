@@ -16,7 +16,6 @@ import Link from "next/link";
 import { ArrowRight, Import, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { projects as allProjects } from "@/data/projects.json";
-import { useStore } from "@/hooks/use-app-store";
 import { useSearchParams } from "next/navigation";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
