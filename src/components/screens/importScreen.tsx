@@ -6,21 +6,35 @@ import { ArrowLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProjectList } from "../components/projectList";
 import { projects as allProjects } from "@/data/projects.json";
-import { Project } from "@/lib/type";
+import { ImportedProject, Project } from "@/lib/type";
 import { Header } from "../components/header";
 import { useAuth } from "@/hooks/use-auth";
 import Subheader from "../components/subheader";
 import { useRouter } from "next/navigation";
+import { useImports } from "@/hooks/use-imports";
+import { useEffect } from "react";
 
-export default function ExploreScreen() {
+interface ImportScreenProps {
+  id: string;
+  projects: Project[];
+}
+
+export default function ImportScreen({ id, projects }: ImportScreenProps) {
   const { user } = useAuth();
+  const { loadImportedProjects } = useImports();
+  const { importedProjects, addImportedProjects } = useImports();
   const router = useRouter();
-  const publicProjects = allProjects.filter(
-    (project) => project.visibility === "public"
-  );
+
+  useEffect(() => {
+    loadImportedProjects(id);
+  }, [id]);
 
   const handleOpenProject = (project: Project) => {
     router.push(`/explore/${project.id}`);
+  };
+
+  const handleImport = (project: ImportedProject) => {
+    addImportedProjects(project);
   };
 
   return (
@@ -30,14 +44,15 @@ export default function ExploreScreen() {
         <div className="flex flex-col w-full h-full px-8">
           <Subheader
             title="Explore Public Projects"
-            buttonTitle={`Back to ${user ? "Dashboard" : "Home"}`}
-            buttonLink={user ? "/app/dashboard" : "/"}
+            buttonTitle={`Back to Project`}
+            buttonLink={`/app/projects/${id}`}
             ClickIcon={ArrowLeft}
           />
           <ProjectList
-            projects={publicProjects as Project[]}
+            projects={projects}
             onOpenProject={handleOpenProject}
-            pageType="explore"
+            pageType="import"
+            onImportProject={handleImport}
           />
         </div>
       </main>

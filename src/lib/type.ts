@@ -7,8 +7,6 @@ export interface Project {
   name: string;
   description: string;
   visibility: "public" | "private";
-  imageUrl: string;
-  "data-ai-hint": string;
   nodes?: Node[];
   edges?: Edge[];
 }

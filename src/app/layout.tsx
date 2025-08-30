@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/provider/authProvider";
 import RouteGuard from "@/components/provider/routeGuard";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "FlowForge",
@@ -32,14 +33,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased">
+      <body className={cn("h-screen bg-background font-body antialiased")}>
         <AuthProvider>
-          <RouteGuard>
-            <div className="relative flex min-h-screen flex-col">
-              <main className="flex-1">{children}</main>
-            </div>
-          </RouteGuard>
-          <Toaster />
+            <RouteGuard>{children}</RouteGuard>
+            <Toaster />
         </AuthProvider>
       </body>
     </html>

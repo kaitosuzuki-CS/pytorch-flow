@@ -10,11 +10,11 @@ export default function RouteGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const isAppPage = pathname.startsWith("/dashboard");
+    const isAppPage = pathname.startsWith("/app");
     if (isAppPage && !user) {
-      router.replace("/");
+      router.push("/");
     }
-  }, []);
+  }, [pathname, router, user]);
 
   return <>{children}</>;
 }

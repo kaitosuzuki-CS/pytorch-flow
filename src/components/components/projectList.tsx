@@ -11,35 +11,55 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/lib/type";
+import type { ImportedProject, Project } from "@/lib/type";
 import Link from "next/link";
-import { ArrowRight, Import, Search } from "lucide-react";
+import { ArrowRight, Import, Search, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { projects as allProjects } from "@/data/projects.json";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 interface ProjectListProps {
   projects: Project[];
   onOpenProject: (project: Project) => void;
-  isImportContext: boolean;
+  pageType: string;
+  onImportProject?: ((project: ImportedProject) => void) | null;
 }
 
 export function ProjectList({
   projects,
   onOpenProject,
-  isImportContext,
+  pageType,
+  onImportProject,
 }: ProjectListProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
-
+  const router = useRouter();
   const { toast } = useToast();
 
   const handleOpen = (project: Project) => {
     onOpenProject(project);
   };
 
-  const handleImport = (projectToImport: Project) => {};
+  const handleImport = (project: Project) => {
+    if (onImportProject) {
+      const projectToImport: ImportedProject = {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        nodes: project.nodes || [],
+        edges: project.edges || [],
+      };
+      onImportProject(projectToImport);
+    }
+  };
 
   const filteredProjects = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -72,21 +92,23 @@ export function ProjectList({
   }, [searchQuery, projects]);
 
   return (
-    <div className="h-screen flex flex-col gap-2">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Search projects by name or description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10"
-        />
+    <>
+      <div className="flex w-full items-center space-x-2 my-4 flex-shrink-0">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search projects by name or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10"
+          />
+        </div>
       </div>
-      <div className="flex flex-col h-screen gap-4">
-        <ScrollArea className="flex-grow">
-          <div className="flex flex-col gap-4 pr-4">
-            {projects.map((project) => (
+      <ScrollArea className="flex-grow pr-2">
+        <div className="flex flex-col gap-4">
+          {filteredProjects.length > 0 ? (
+            filteredProjects.map((project) => (
               <div key={project.id} className="border-b last:border-b-0">
                 <div className="flex items-center justify-between p-4">
                   <div className="flex-1">
@@ -98,7 +120,17 @@ export function ProjectList({
                     </p>
                   </div>
                   <div className="flex items-center gap-4 ml-4">
-                    <Badge variant="secondary">Public</Badge>
+                    {pageType === "dashboard" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/app/settings/${project.id}`)}
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    )}
+
+                    <Badge variant="secondary">{project.visibility}</Badge>
                     <Button
                       variant="outline"
                       size="sm"
@@ -107,7 +139,7 @@ export function ProjectList({
                       Open
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-                    {isImportContext && (
+                    {pageType === "import" && (
                       <Button
                         variant="default"
                         size="sm"
@@ -120,10 +152,22 @@ export function ProjectList({
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-    </div>
+            ))
+          ) : (
+            <Card className="text-center py-12 bg-background">
+              <CardHeader>
+                <CardTitle>No Results Found</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Try adjusting your search terms to find what you're looking
+                  for.
+                </CardDescription>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </ScrollArea>
+    </>
   );
 }

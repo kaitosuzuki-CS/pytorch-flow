@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Workflow } from "lucide-react";
-import { Header } from "./header";
+import { Header } from "../components/header";
 
 export default function HomeScreen() {
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center text-center p-8">
         <section className="max-w-3xl">
