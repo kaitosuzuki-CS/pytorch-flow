@@ -14,7 +14,7 @@ import { Workflow } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SiGoogle as GoogleIcon, SiGithub as GithubIcon } from "react-icons/si";
-import { Header } from "./header";
+import { Header } from "../components/header";
 
 export default function GetStartedScreen() {
   const { signInWithGoogle, signInWithGithub } = useAuth();
@@ -40,7 +40,7 @@ export default function GetStartedScreen() {
     }
   };
   return (
-    <div className='flex flex-col h-screen bg-background'>
+    <div className="flex flex-col h-screen bg-background">
       <Header />
       <div className="flex flex-col h-full items-center justify-center bg-muted/40 p-4">
         <div className="w-full max-w-sm">

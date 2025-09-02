@@ -17,7 +17,7 @@ import {
 import { InteractionMode, Project } from "@/lib/type";
 import { Badge } from "../ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
 
 type HeaderProps = {
@@ -25,6 +25,7 @@ type HeaderProps = {
   project?: Project | null;
   interactionMode?: InteractionMode | null;
   onInteractionModeChange?: (mode: InteractionMode) => void;
+  onPublish?: (() => void) | null;
 };
 
 export function Header({
@@ -32,9 +33,11 @@ export function Header({
   project,
   interactionMode,
   onInteractionModeChange,
+  onPublish,
 }: HeaderProps) {
   const { user, logOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const toggleInteractionMode = () => {
     if (!onInteractionModeChange) return;
@@ -54,12 +57,18 @@ export function Header({
   };
 
   return (
-    <header className="flex items-center justify-between h-16 px-6 bg-background border-b z-20">
+    <header
+      className="flex items-center justify-between h-16 px-6 bg-background border-b z-20"
+      suppressHydrationWarning
+    >
       <div className="flex items-center gap-3 min-w-0">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link
+          href={user ? "/dashboard" : "/"}
+          className="flex items-center gap-3"
+        >
           <Workflow className="w-8 h-8 text-primary" />
           <h1 className="text-2xl font-bold font-headline text-foreground hidden sm:block">
-            {isDashboard ? "My Projects" : "FlowForge"}
+            FlowForge
           </h1>
         </Link>
         {project && (
@@ -86,7 +95,6 @@ export function Header({
           <Button
             onClick={toggleInteractionMode}
             variant="outline"
-            size="icon"
             title={
               interactionMode === "selection"
                 ? "Switch to Pan Mode"
@@ -101,21 +109,24 @@ export function Header({
           </Button>
         )}
 
+        {onPublish && (
+          <Button
+            onClick={onPublish}
+            variant="outline"
+            title="Publish Project"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Publish
+          </Button>
+        )}
+
         {isDashboard && (
-          <>
-            <Link href="/explore">
-              <Button variant="outline">
-                <Compass className="w-4 h-4 mr-2" />
-                Browse Projects
-              </Button>
-            </Link>
-            <Link href="/projects/new">
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-            </Link>
-          </>
+          <Link href="/explore">
+            <Button variant="outline">
+              <Compass className="w-4 h-4 mr-2" />
+              Browse Projects
+            </Button>
+          </Link>
         )}
 
         <div className="flex flex-1 items-center justify-end space-x-2 mr-4">
