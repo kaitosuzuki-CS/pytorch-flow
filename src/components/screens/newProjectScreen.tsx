@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function NewProjectScreen() {
   const router = useRouter();
-  const {user} = useAuth();
+  const { user } = useAuth();
   const { addProject } = useProjects();
 
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export default function NewProjectScreen() {
       id: newProjectId,
       name: data.name,
       description: data.description || "",
-      visibility: data.visibility
+      visibility: data.visibility,
     };
 
     addProject(newProject);

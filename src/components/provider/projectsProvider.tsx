@@ -1,15 +1,16 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { projectsRef } from "@/lib/firebase";
+import { importedProjectsRef, projectsRef } from "@/lib/firebase";
 import { Project } from "@/lib/type";
-import { addDoc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
+import { Edge, Node } from "reactflow";
 
 export interface ProjectsContextType {
   projects: Project[];
   addProject: (project: Project) => void;
-  getProjects: () => void;
+  updateProject: (project: Project) => void;
 }
 
 export const ProjectsContext = createContext<ProjectsContextType | undefined>(
@@ -49,8 +50,12 @@ export function ProjectsProvider({ children }: { children: React.ReactNode }) {
     try {
       await addDoc(projectsRef, {
         ...project,
-        uid: user?.uid,
       });
+
+      await addDoc(importedProjectsRef, {
+        id: project.id,
+        importedProjects: []
+      })
 
       setProjects((prev) => [...prev, project]);
     } catch (error) {
@@ -58,8 +63,26 @@ export function ProjectsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const getProjects = () => {
-    console.log(projects);
+  const updateProject = async (project: Project) => {
+    try {
+      const docRef = query(projectsRef, where("uid", "==", user?.uid));
+      const data = await getDocs(docRef);
+
+      await updateDoc(data.docs[0].ref, {
+        ...project,
+      });
+
+      const newProjects = projects.map((p) => {
+        if (p.id === project.id) {
+          return project;
+        }
+        return p;
+      });
+
+      setProjects(newProjects);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -67,7 +90,7 @@ export function ProjectsProvider({ children }: { children: React.ReactNode }) {
       value={{
         projects,
         addProject,
-        getProjects,
+        updateProject,
       }}
     >
       {children}

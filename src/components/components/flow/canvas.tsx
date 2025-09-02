@@ -47,11 +47,13 @@ import { projects as allProjects } from "@/data/projects.json";
 import { useSearchParams } from "next/navigation";
 import { ProjectViewer } from "@/components/components/flow/projectViewer";
 import { useImports } from "@/hooks/use-imports";
+import { useProjects } from "@/hooks/use-projects";
 
 interface CanvasProps {
   project: Project;
   isViewOnly: boolean;
   interactionMode: InteractionMode;
+  importedProjects?: ImportedProject[];
 }
 
 const initialNodes: Node[] = [
@@ -68,10 +70,11 @@ function FlowForgeCanvas({
   project,
   isViewOnly,
   interactionMode,
+  importedProjects = [],
 }: CanvasProps) {
   const searchParams = useSearchParams();
   const isViewParam = searchParams.get("view") === "true";
-  const { importedProjects } = useImports();
+  // const { importedProjects } = useImports();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const {
@@ -386,9 +389,27 @@ function FlowForgeCanvas({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        interactionMode={interactionMode}
       />
     );
   }
+
+  const { updateProject } = useProjects();
+
+  useEffect(() => {
+    const update = () => {
+      const flowObject = toObject();
+      const updatedProject = {
+        ...project,
+        nodes: flowObject.nodes,
+        edges: flowObject.edges,
+      };
+
+      updateProject(updatedProject);
+    };
+
+    update();
+  }, [nodes, edges]);
 
   return (
     <>
@@ -448,6 +469,7 @@ export default function Canvas({
   project,
   isViewOnly,
   interactionMode,
+  importedProjects = [],
 }: CanvasProps) {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -456,6 +478,7 @@ export default function Canvas({
           project={project}
           isViewOnly={isViewOnly}
           interactionMode={interactionMode}
+          importedProjects={importedProjects}
         />
       </ReactFlowProvider>
     </React.Suspense>

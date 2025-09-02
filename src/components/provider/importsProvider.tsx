@@ -1,6 +1,9 @@
 "use client";
 
+import { useAuth } from "@/hooks/use-auth";
+import { importedProjectsRef } from "@/lib/firebase";
 import { ImportedProject } from "@/lib/type";
+import { getDocs, query, updateDoc, where } from "firebase/firestore";
 import { createContext, useState, useEffect } from "react";
 
 export interface ImportsContextType {
@@ -15,20 +18,45 @@ export const ImportsContext = createContext<ImportsContextType | undefined>(
 );
 
 export function ImportsProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [importedProjects, setImportedProjects] = useState<ImportedProject[]>(
     []
   );
 
-  const loadImportedProjects = (id: string) => {
-    if (id !== projectId) {
-      setProjectId(id);
-      setImportedProjects([]);
-    }
-  }
+  const loadImportedProjects = async (id: string) => {
+    if (!user) return;
 
-  const addImportedProjects = (project: ImportedProject) => {
-    setImportedProjects((prev) => [...prev, project]);
+    if (id !== projectId) {
+      try {
+        const docRef = query(importedProjectsRef, where("id", "==", id));
+        const data = await getDocs(docRef);
+
+        const documents = data.docs[0].data();
+
+        setImportedProjects(documents.importedProjects);
+        setProjectId(id);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const addImportedProjects = async (project: ImportedProject) => {
+    const newImportedProjects = [...importedProjects, project];
+
+    try {
+      const docRef = query(importedProjectsRef, where("id", "==", project.id));
+      const data = await getDocs(docRef);
+
+      await updateDoc(data.docs[0].ref, {
+        importedProjects: newImportedProjects,
+      });
+
+      setImportedProjects(newImportedProjects);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const deleteImportedProjects = (project: ImportedProject) => {

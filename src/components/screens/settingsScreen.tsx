@@ -3,14 +3,15 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ProjectForm } from "@/components/components/projectForm";
 import { useToast } from "@/hooks/use-toast";
-import { projects } from "@/data/projects.json";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "../components/header";
 import Subheader from "../components/subheader";
 import { ScrollArea } from "../ui/scroll-area";
+import { useProjects } from "@/hooks/use-projects";
 
 export default function SettingsScreen({ projectId }: { projectId: string }) {
   const router = useRouter();
+  const { projects, updateProject } = useProjects();
   const { toast } = useToast();
   const project = projects.find((p) => p.id === projectId);
 
@@ -28,7 +29,12 @@ export default function SettingsScreen({ projectId }: { projectId: string }) {
     visibility: "public" | "private";
   }) => {
     // In a real application, you would send this data to your backend to update the project.
-    console.log("Updating project:", { id: project.id, ...data });
+
+    project.name = data.name;
+    project.description = data.description || project.description;
+    project.visibility = data.visibility;
+
+    updateProject(project);
 
     toast({
       title: "Project Updated",
@@ -37,14 +43,17 @@ export default function SettingsScreen({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background" suppressHydrationWarning>
+    <div
+      className="flex flex-col h-screen bg-background"
+      suppressHydrationWarning
+    >
       <Header isDashboard={true} />
       <main className="flex-1 flex flex-col py-8 px-4 md:px-6 overflow-hidden">
         <div className="flex flex-col w-full h-full px-8">
           <Subheader
             title="Project Settings"
             buttonTitle="Back to Dashboard"
-            buttonLink="//dashboard"
+            buttonLink="/dashboard"
             ClickIcon={ArrowLeft}
           />
           <ScrollArea className="flex-grow pr-4">

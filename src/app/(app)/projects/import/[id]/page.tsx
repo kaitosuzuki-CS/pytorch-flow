@@ -11,5 +11,5 @@ export default function ImportPage({
 }) {
   const { id } = use(params);
 
-  return <ImportScreen id={id} projects={allProjects as Project[]} />;
+  return <ImportScreen id={id} />;
 }

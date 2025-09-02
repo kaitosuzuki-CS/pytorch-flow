@@ -25,7 +25,7 @@ type HeaderProps = {
   project?: Project | null;
   interactionMode?: InteractionMode | null;
   onInteractionModeChange?: (mode: InteractionMode) => void;
-  onExport?: (() => void) | null;
+  onPublish?: (() => void) | null;
 };
 
 export function Header({
@@ -33,7 +33,7 @@ export function Header({
   project,
   interactionMode,
   onInteractionModeChange,
-  onExport,
+  onPublish,
 }: HeaderProps) {
   const { user, logOut } = useAuth();
   const router = useRouter();
@@ -109,14 +109,14 @@ export function Header({
           </Button>
         )}
 
-        {onExport && (
+        {onPublish && (
           <Button
-            onClick={onExport}
+            onClick={onPublish}
             variant="outline"
-            title="Export Project"
+            title="Publish Project"
           >
             <Download className="w-4 h-4 mr-2" />
-            Export
+            Publish
           </Button>
         )}
 

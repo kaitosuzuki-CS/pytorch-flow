@@ -13,7 +13,7 @@ import "reactflow/dist/style.css";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Workflow } from "lucide-react";
 import Link from "next/link";
-import { Project } from "@/lib/type";
+import { InteractionMode, Project } from "@/lib/type";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "next/navigation";
 
@@ -22,6 +22,7 @@ interface ProjectViewerProps {
   nodes: Node[];
   edges: Edge[];
   nodeTypes: Record<string, React.ComponentType<NodeProps>>;
+  interactionMode: InteractionMode;
 }
 
 export function ProjectViewer({
@@ -29,6 +30,7 @@ export function ProjectViewer({
   nodes,
   edges,
   nodeTypes,
+  interactionMode,
 }: ProjectViewerProps) {
   return (
     <>
@@ -49,11 +51,12 @@ export function ProjectViewer({
           nodesConnectable={false}
           nodesFocusable={false}
           edgesFocusable={false}
-          panOnDrag={true}
           zoomOnScroll={true}
           zoomOnPinch={true}
           zoomOnDoubleClick={true}
-          panOnScroll={true}
+          panOnScroll={interactionMode === "selection"}
+          selectionOnDrag={interactionMode === "selection"}
+          panOnDrag={interactionMode === "pan"}
           preventScrolling={false}
         >
           <Controls showInteractive={false} />

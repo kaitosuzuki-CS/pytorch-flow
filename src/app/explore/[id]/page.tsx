@@ -10,5 +10,5 @@ export default function ExploreProjectPage({
 }) {
   const { id } = use(params);
 
-  return <ProjectScreen projectId={id} isViewOnly={true} />;
+  return <ProjectScreen projectId={id} />;
 }

@@ -10,35 +10,33 @@ import { useAuth } from "@/hooks/use-auth";
 import { getDocs, query, where } from "firebase/firestore";
 import { projectsRef } from "@/lib/firebase";
 
-interface ProjectScreenProps {
+interface UserProjectScreenProps {
   projectId: string;
 }
 
-export default function ProjectScreen({ projectId }: ProjectScreenProps) {
-  const { user } = useAuth();
+export default function UserProjectScreen({
+  projectId,
+}: UserProjectScreenProps) {
+  const { projects } = useProjects();
+  const { importedProjects } = useImports();
   const [project, setProject] = useState<Project | null>(null);
 
   const [interactionMode, setInteractionMode] =
     useState<InteractionMode>("selection");
 
   useEffect(() => {
-    const getProject = async () => {
-      try {
-        const docRef = query(projectsRef, where("id", "==", projectId));
-        const data = await getDocs(docRef);
+    const p = projects.find((p) => p.id === projectId);
 
-        const document = data.docs[0].data() as Project;
+    if (p) {
+      setProject(p);
+    } else {
+      setProject(null);
+    }
 
-        setProject(document);
-      } catch (error) {
-        setProject(null);
-        console.error(error);
-      }
-    };
-
-    getProject();
     return;
   }, []);
+
+  const handlePublish = () => {};
 
   if (!project) {
     return null;
@@ -48,20 +46,17 @@ export default function ProjectScreen({ projectId }: ProjectScreenProps) {
     <div className="flex flex-col h-screen bg-background">
       <Header
         project={project}
-        onPublish={null}
+        onPublish={handlePublish}
         interactionMode={interactionMode}
         onInteractionModeChange={setInteractionMode}
       />
 
-      <main
-        className={
-            "flex-1 flex flex-col items-center justify-center p-4"
-        }
-      >
+      <main className={"flex flex-1 overflow-hidden"}>
         <Canvas
           project={project}
-          isViewOnly={true}
+          isViewOnly={false}
           interactionMode={interactionMode}
+          importedProjects={importedProjects}
         />
       </main>
     </div>
