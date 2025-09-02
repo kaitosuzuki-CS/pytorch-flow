@@ -63,7 +63,7 @@ export function Header({
     >
       <div className="flex items-center gap-3 min-w-0">
         <Link
-          href={user ? "/app/dashboard" : "/"}
+          href={user ? "/dashboard" : "/"}
           className="flex items-center gap-3"
         >
           <Workflow className="w-8 h-8 text-primary" />

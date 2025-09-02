@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/provider/authProvider";
 import RouteGuard from "@/components/provider/routeGuard";
 import { cn } from "@/lib/utils";
+import { ProjectsProvider } from "@/components/provider/projectsProvider";
 
 export const metadata: Metadata = {
   title: "FlowForge",

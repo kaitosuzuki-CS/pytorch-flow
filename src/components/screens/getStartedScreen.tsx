@@ -30,7 +30,7 @@ export default function GetStartedScreen() {
         await signInWithGithub();
       }
 
-      router.push("/app/dashboard");
+      router.push("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

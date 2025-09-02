@@ -32,6 +32,7 @@ interface ProjectListProps {
   onOpenProject: (project: Project) => void;
   pageType: string;
   onImportProject?: ((project: ImportedProject) => void) | null;
+  importedProjects?: ImportedProject[];
 }
 
 export function ProjectList({
@@ -39,6 +40,7 @@ export function ProjectList({
   onOpenProject,
   pageType,
   onImportProject,
+  importedProjects = [],
 }: ProjectListProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const router = useRouter();
@@ -124,13 +126,20 @@ export function ProjectList({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push(`/app/settings/${project.id}`)}
+                        onClick={() =>
+                          router.push(`/settings/${project.id}`)
+                        }
                       >
                         <Settings className="w-4 h-4" />
                       </Button>
                     )}
 
-                    <Badge variant="secondary">{project.visibility}</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="w-16 flex justify-center"
+                    >
+                      {project.visibility}
+                    </Badge>
                     <Button
                       variant="outline"
                       size="sm"
@@ -144,6 +153,9 @@ export function ProjectList({
                         variant="default"
                         size="sm"
                         onClick={() => handleImport(project)}
+                        disabled={importedProjects.some(
+                          (importedProject) => importedProject.id === project.id
+                        )}
                       >
                         Import
                         <Import className="w-4 h-4 ml-2" />

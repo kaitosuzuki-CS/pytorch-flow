@@ -11,13 +11,37 @@ import { Header } from "../components/header";
 import { useAuth } from "@/hooks/use-auth";
 import Subheader from "../components/subheader";
 import { useRouter } from "next/navigation";
+import { getDocs, query, where } from "firebase/firestore";
+import { projectsRef } from "@/lib/firebase";
+import { useEffect, useState } from "react";
 
 export default function ExploreScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const publicProjects = allProjects.filter(
-    (project) => project.visibility === "public"
-  );
+
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    getProjects();
+  }, []);
+
+  const getProjects = async () => {
+    try {
+      const docRef = query(projectsRef, where("visibility", "==", "public"));
+      const data = await getDocs(docRef);
+
+      const documents = data.docs.map(
+        (doc) =>
+          ({
+            ...doc.data(),
+          } as Project)
+      );
+
+      setProjects(documents);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpenProject = (project: Project) => {
     router.push(`/explore/${project.id}`);
@@ -31,11 +55,11 @@ export default function ExploreScreen() {
           <Subheader
             title="Explore Public Projects"
             buttonTitle={`Back to ${user ? "Dashboard" : "Home"}`}
-            buttonLink={user ? "/app/dashboard" : "/"}
+            buttonLink={user ? "/dashboard" : "/"}
             ClickIcon={ArrowLeft}
           />
           <ProjectList
-            projects={publicProjects as Project[]}
+            projects={projects}
             onOpenProject={handleOpenProject}
             pageType="explore"
           />

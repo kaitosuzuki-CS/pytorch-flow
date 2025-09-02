@@ -21,13 +21,8 @@ interface ImportScreenProps {
 
 export default function ImportScreen({ id, projects }: ImportScreenProps) {
   const { user } = useAuth();
-  const { loadImportedProjects } = useImports();
   const { importedProjects, addImportedProjects } = useImports();
   const router = useRouter();
-
-  useEffect(() => {
-    loadImportedProjects(id);
-  }, [id]);
 
   const handleOpenProject = (project: Project) => {
     router.push(`/explore/${project.id}`);
@@ -45,7 +40,7 @@ export default function ImportScreen({ id, projects }: ImportScreenProps) {
           <Subheader
             title="Explore Public Projects"
             buttonTitle={`Back to Project`}
-            buttonLink={`/app/projects/${id}`}
+            buttonLink={`/projects/${id}`}
             ClickIcon={ArrowLeft}
           />
           <ProjectList
@@ -53,6 +48,7 @@ export default function ImportScreen({ id, projects }: ImportScreenProps) {
             onOpenProject={handleOpenProject}
             pageType="import"
             onImportProject={handleImport}
+            importedProjects={importedProjects}
           />
         </div>
       </main>

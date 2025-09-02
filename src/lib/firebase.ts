@@ -27,5 +27,5 @@ export const githubProvider = new GithubAuthProvider();
 
 export const db = getFirestore(app);
 
-export const chatsCollectionRef = collection(db, "chats");
-export const messagesCollectionRef = collection(db, "messages");
+export const projectsRef = collection(db, "projects");
+export const importedProjectsRef = collection(db, "importedProjects");

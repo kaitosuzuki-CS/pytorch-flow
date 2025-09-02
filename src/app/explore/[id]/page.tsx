@@ -10,9 +10,5 @@ export default function ExploreProjectPage({
 }) {
   const { id } = use(params);
 
-  const project = allProjects.filter((p) => p.id === id)[0];
-
-  return (
-    <ProjectScreen project={project as unknown as Project} isViewOnly={true} />
-  );
+  return <ProjectScreen projectId={id} isViewOnly={true} />;
 }

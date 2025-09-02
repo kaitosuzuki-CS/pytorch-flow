@@ -49,7 +49,7 @@ export function ComponentSidebar({
     <aside className="w-80 border-r bg-card flex flex-col z-10">
       <div className="p-4 border-b h-16 flex items-center justify-between">
         <h2 className="text-lg font-semibold font-headline">Components</h2>
-        <Link href={`/app/projects/import/${projectId}`} passHref>
+        <Link href={`/projects/import/${projectId}`} passHref>
           <Button variant="outline" size="sm">
             <Import className="w-4 h-4 mr-2" />
             Import Project

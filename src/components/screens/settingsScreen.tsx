@@ -44,7 +44,7 @@ export default function SettingsScreen({ projectId }: { projectId: string }) {
           <Subheader
             title="Project Settings"
             buttonTitle="Back to Dashboard"
-            buttonLink="/app/dashboard"
+            buttonLink="//dashboard"
             ClickIcon={ArrowLeft}
           />
           <ScrollArea className="flex-grow pr-4">

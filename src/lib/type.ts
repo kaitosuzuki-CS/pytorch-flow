@@ -3,6 +3,7 @@ import type { Node, Edge } from "reactflow";
 export type InteractionMode = "selection" | "pan";
 
 export interface Project {
+  uid: string;
   id: string;
   name: string;
   description: string;
