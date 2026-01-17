@@ -67,12 +67,14 @@ pytorch-flow/
 ## Getting Started
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/your-username/pytorch-flow.git
     cd pytorch-flow
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     npm install
     # or
@@ -81,6 +83,7 @@ pytorch-flow/
 
 3.  **Environment Setup:**
     Create a `.env.local` file in the root directory and add your Firebase configuration keys:
+
     ```env
     NEXT_PUBLIC_FIREBASE_API_KEY=...
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
@@ -88,9 +91,11 @@ pytorch-flow/
     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
     NEXT_PUBLIC_FIREBASE_APP_ID=...
+    NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=...
     ```
 
 4.  **Run the development server:**
+
     ```bash
     npm run dev
     ```
@@ -104,20 +109,20 @@ Here is a breakdown of some of the most critical files in the application:
 
 ### Core Flow Components (`src/components/components/flow/`)
 
-*   **`canvas.tsx`**: The heart of the editor. This component wraps the `ReactFlow` instance, handling node/edge state, drag-and-drop logic (creating new nodes from the sidebar), connection handling, and synchronizing the flow state with the parent project object.
-*   **`sidebar.tsx`**: Renders the draggable list of components on the left side of the screen. It organizes components into categories (e.g., Process, Logic) and handles the drag-start events that pass data to the Canvas.
-*   **`configPanel.tsx`**: A dynamic side sheet that opens when a node is selected. It reads the node's schema (defined in `flow-components.ts`) and generates a form using `react-hook-form` to let users edit node parameters.
-*   **`projectViewer.tsx`**: A read-only version of the canvas used for "View Only" modes or previews.
+- **`canvas.tsx`**: The heart of the editor. This component wraps the `ReactFlow` instance, handling node/edge state, drag-and-drop logic (creating new nodes from the sidebar), connection handling, and synchronizing the flow state with the parent project object.
+- **`sidebar.tsx`**: Renders the draggable list of components on the left side of the screen. It organizes components into categories (e.g., Process, Logic) and handles the drag-start events that pass data to the Canvas.
+- **`configPanel.tsx`**: A dynamic side sheet that opens when a node is selected. It reads the node's schema (defined in `flow-components.ts`) and generates a form using `react-hook-form` to let users edit node parameters.
+- **`projectViewer.tsx`**: A read-only version of the canvas used for "View Only" modes or previews.
 
 ### Screens (`src/components/screens/`)
 
-*   **`userProjectScreen.tsx`**: The main layout for the project editor. It coordinates the `Header` and `Canvas` components, managing the project state and interaction modes (Selection vs. Pan).
-*   **`dashboardScreen.tsx`**: The user's landing page after login, displaying a grid of their saved projects with options to create new ones or delete existing ones.
+- **`userProjectScreen.tsx`**: The main layout for the project editor. It coordinates the `Header` and `Canvas` components, managing the project state and interaction modes (Selection vs. Pan).
+- **`dashboardScreen.tsx`**: The user's landing page after login, displaying a grid of their saved projects with options to create new ones or delete existing ones.
 
 ### Application Logic (`src/app/`)
 
-*   **`src/app/(app)/projects/[id]/page.tsx`**: The dynamic route for opening a specific project. It fetches the project ID from the URL and renders the `UserProjectScreen`.
-*   **`src/lib/flow-components.ts`**: (inferred) Likely acts as the registry for all available node types, defining their default parameters, labels, and configuration schema used by the `ConfigPanel`.
+- **`src/app/(app)/projects/[id]/page.tsx`**: The dynamic route for opening a specific project. It fetches the project ID from the URL and renders the `UserProjectScreen`.
+- **`src/lib/flow-components.ts`**: Acts as the registry for all available node types, defining their default parameters, labels, and configuration schema used by the `ConfigPanel`.
 
 ## Sample Images
 
