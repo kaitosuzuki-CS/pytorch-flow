@@ -13,12 +13,13 @@ import { useRouter } from "next/navigation";
 import { getDocs, query, where } from "firebase/firestore";
 import { projectsRef } from "@/lib/firebase";
 import { useEffect, useState } from "react";
+import { useProjects } from "@/hooks/use-projects";
 
 export default function ExploreScreen() {
   const { user } = useAuth();
   const router = useRouter();
 
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [explorableProjects, setExplorableProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     getProjects();
@@ -29,14 +30,16 @@ export default function ExploreScreen() {
       const docRef = query(projectsRef, where("visibility", "==", "public"));
       const data = await getDocs(docRef);
 
-      const documents = data.docs.map(
-        (doc) =>
-          ({
-            ...doc.data(),
-          }) as Project,
-      );
+      const documents = data.docs
+        .map(
+          (doc) =>
+            ({
+              ...doc.data(),
+            }) as Project,
+        )
+        .filter((p) => !user || user.uid !== p.uid);
 
-      setProjects(documents);
+      setExplorableProjects(documents);
     } catch (error) {
       console.error(error);
     }
@@ -58,7 +61,7 @@ export default function ExploreScreen() {
             ClickIcon={ArrowLeft}
           />
           <ProjectList
-            projects={projects}
+            projects={explorableProjects}
             onOpenProject={handleOpenProject}
             pageType="explore"
           />

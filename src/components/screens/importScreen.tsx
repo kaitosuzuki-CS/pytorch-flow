@@ -14,6 +14,7 @@ import { useImports } from "@/hooks/use-imports";
 import { useEffect, useState } from "react";
 import { getDocs, query, where } from "firebase/firestore";
 import { projectsRef } from "@/lib/firebase";
+import { useProjects } from "@/hooks/use-projects";
 
 interface ImportScreenProps {
   id: string;
@@ -21,7 +22,9 @@ interface ImportScreenProps {
 
 export default function ImportScreen({ id }: ImportScreenProps) {
   const { user } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [importableProjects, setImportableProjects] = useState<Project[]>([]);
+
+  const { projects } = useProjects();
   const { importedProjects, addImportedProjects } = useImports();
   const router = useRouter();
 
@@ -39,11 +42,13 @@ export default function ImportScreen({ id }: ImportScreenProps) {
           (doc) =>
             ({
               ...doc.data(),
-            } as Project)
+            }) as Project,
         )
         .filter((p) => p.uid !== user?.uid);
 
-      setProjects(documents);
+      const p = projects.filter((p) => p.id !== id);
+
+      setImportableProjects([...documents, ...p]);
     } catch (error) {
       console.error(error);
     }
@@ -69,7 +74,7 @@ export default function ImportScreen({ id }: ImportScreenProps) {
             ClickIcon={ArrowLeft}
           />
           <ProjectList
-            projects={projects}
+            projects={importableProjects}
             onOpenProject={handleOpenProject}
             pageType="import"
             onImportProject={handleImport}
