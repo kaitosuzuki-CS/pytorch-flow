@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ProjectsProvider } from "@/components/provider/projectsProvider";
 
 export const metadata: Metadata = {
-  title: "FlowForge",
+  title: "PyTorchFlow",
   description: "Create and share beautiful flowcharts with ease.",
 };
 

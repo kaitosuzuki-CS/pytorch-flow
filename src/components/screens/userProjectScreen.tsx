@@ -18,7 +18,7 @@ export default function UserProjectScreen({
   projectId,
 }: UserProjectScreenProps) {
   const { projects } = useProjects();
-  const { importedProjects } = useImports();
+  const { importedProjects, loadImportedProjects } = useImports();
   const [project, setProject] = useState<Project | null>(null);
 
   const [interactionMode, setInteractionMode] =
@@ -29,6 +29,7 @@ export default function UserProjectScreen({
 
     if (p) {
       setProject(p);
+      loadImportedProjects(p.id);
     } else {
       setProject(null);
     }

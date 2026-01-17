@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { importedProjectsRef } from "@/lib/firebase";
 import { ImportedProject } from "@/lib/type";
 import { getDocs, query, updateDoc, where } from "firebase/firestore";
+import { usePathname } from "next/navigation";
 import { createContext, useState, useEffect } from "react";
 
 export interface ImportsContextType {
@@ -14,14 +15,14 @@ export interface ImportsContextType {
 }
 
 export const ImportsContext = createContext<ImportsContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function ImportsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [importedProjects, setImportedProjects] = useState<ImportedProject[]>(
-    []
+    [],
   );
 
   const loadImportedProjects = async (id: string) => {

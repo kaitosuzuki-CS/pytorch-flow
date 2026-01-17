@@ -1,6 +1,5 @@
 import ProjectScreen from "@/components/screens/projectScreen";
 import { use } from "react";
-import { projects as allProjects } from "@/data/projects.json";
 import { Project } from "@/lib/type";
 
 export default function ExploreProjectPage({

@@ -43,7 +43,7 @@ export function Header({
     if (!onInteractionModeChange) return;
 
     onInteractionModeChange(
-      interactionMode === "selection" ? "pan" : "selection"
+      interactionMode === "selection" ? "pan" : "selection",
     );
   };
 
@@ -68,7 +68,7 @@ export function Header({
         >
           <Workflow className="w-8 h-8 text-primary" />
           <h1 className="text-2xl font-bold font-headline text-foreground hidden sm:block">
-            FlowForge
+            PyTorchFlow
           </h1>
         </Link>
         {project && (
@@ -110,11 +110,7 @@ export function Header({
         )}
 
         {onPublish && (
-          <Button
-            onClick={onPublish}
-            variant="outline"
-            title="Publish Project"
-          >
+          <Button onClick={onPublish} variant="outline" title="Publish Project">
             <Download className="w-4 h-4 mr-2" />
             Publish
           </Button>

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProjectList } from "../components/projectList";
-import { projects as allProjects } from "@/data/projects.json";
 import { Project } from "@/lib/type";
 import { Header } from "../components/header";
 import { useAuth } from "@/hooks/use-auth";
@@ -34,7 +33,7 @@ export default function ExploreScreen() {
         (doc) =>
           ({
             ...doc.data(),
-          } as Project)
+          }) as Project,
       );
 
       setProjects(documents);

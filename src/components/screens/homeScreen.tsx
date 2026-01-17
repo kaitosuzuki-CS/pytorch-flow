@@ -15,7 +15,7 @@ export default function HomeScreen() {
             Create and Collaborate on Flowcharts, Seamlessly
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            FlowForge is the ultimate platform for designing, sharing, and
+            PyTorchFlow is the ultimate platform for designing, sharing, and
             managing your process diagrams. From simple workflows to complex
             systems, bring your ideas to life.
           </p>
@@ -34,9 +34,6 @@ export default function HomeScreen() {
           </div>
         </section>
       </main>
-      <footer className="p-6 border-t text-center text-sm text-muted-foreground">
-        © 2025 FlowForge, Inc. All rights reserved.
-      </footer>
     </div>
   );
 }

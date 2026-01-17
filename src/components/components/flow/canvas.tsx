@@ -43,10 +43,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SelectionToolbar } from "@/components/components/flow/selectionToolbar";
 import { InteractionMode, Project, ImportedProject } from "@/lib/type";
-import { projects as allProjects } from "@/data/projects.json";
 import { useSearchParams } from "next/navigation";
 import { ProjectViewer } from "@/components/components/flow/projectViewer";
-import { useImports } from "@/hooks/use-imports";
 import { useProjects } from "@/hooks/use-projects";
 
 interface CanvasProps {
@@ -103,24 +101,24 @@ function FlowForgeCanvas({
   const selectedNodeCount = useStore((s) =>
     s.nodeInternals.size > 0
       ? Array.from(s.nodeInternals.values()).filter((n) => n.selected).length
-      : 0
+      : 0,
   );
   const selectedEdgeCount = useStore(
-    (s) => s.edges.filter((e) => e.selected).length
+    (s) => s.edges.filter((e) => e.selected).length,
   );
   const hasSelection = selectedNodeCount > 0 || selectedEdgeCount > 0;
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
+    [setNodes],
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
-    [setEdges]
+    [setEdges],
   );
 
   const onSettingsClick = useCallback((node: Node) => {
@@ -186,20 +184,20 @@ function FlowForgeCanvas({
         />
       ),
     }),
-    [onSettingsClick, isViewOnly]
+    [onSettingsClick, isViewOnly],
   );
 
   const onConnectStart = useCallback(
     (
       _: React.MouseEvent | React.TouchEvent,
-      { nodeId, handleId, handleType }: OnConnectStartParams
+      { nodeId, handleId, handleType }: OnConnectStartParams,
     ) => {
       if (nodeId && handleType) {
         connectingNode.current = { nodeId, handleId, handleType };
         setIsConnecting(true);
       }
     },
-    []
+    [],
   );
 
   const onConnectEnd = useCallback(
@@ -219,7 +217,7 @@ function FlowForgeCanvas({
         setIsConnecting(false);
       }
     },
-    [onNodesChange]
+    [onNodesChange],
   );
 
   const onConnect = useCallback(
@@ -230,7 +228,7 @@ function FlowForgeCanvas({
       connectingNode.current = null;
       setIsConnecting(false);
     },
-    [setEdges]
+    [setEdges],
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -257,7 +255,7 @@ function FlowForgeCanvas({
       const { nodeType, componentName, isProject } = JSON.parse(type);
 
       if (isProject) {
-        const importedProject = allProjects.find((p) => p.id === nodeType);
+        const importedProject = importedProjects.find((p) => p.id === nodeType);
         if (
           !importedProject ||
           !importedProject.nodes ||
@@ -302,10 +300,13 @@ function FlowForgeCanvas({
       const componentInfo = getComponentByType(nodeType);
       if (!componentInfo) return;
 
-      const params = componentInfo.params.reduce((acc, param) => {
-        acc[param.name] = param.defaultValue;
-        return acc;
-      }, {} as Record<string, any>);
+      const params = componentInfo.params.reduce(
+        (acc, param) => {
+          acc[param.name] = param.defaultValue;
+          return acc;
+        },
+        {} as Record<string, any>,
+      );
 
       const newNode: Node = {
         id: `${nodeType}-${+new Date()}`,
@@ -316,7 +317,7 @@ function FlowForgeCanvas({
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setNodes, setEdges]
+    [screenToFlowPosition, setNodes, setEdges],
   );
 
   const onSaveConfig = (nodeId: string, data: any) => {
@@ -326,7 +327,7 @@ function FlowForgeCanvas({
           node.data = { ...node.data, params: data };
         }
         return node;
-      })
+      }),
     );
 
     toast({
@@ -347,7 +348,7 @@ function FlowForgeCanvas({
     // Also remove edges connected to the selected nodes
     const connectedEdges = getConnectedEdges(selectedNodes, getEdges());
     const edgesToRemove = new Set(
-      [...selectedEdges, ...connectedEdges].map((e) => e.id)
+      [...selectedEdges, ...connectedEdges].map((e) => e.id),
     );
 
     setNodes((nds) => nds.filter((n) => !nodesToRemove.has(n.id)));
@@ -434,7 +435,7 @@ function FlowForgeCanvas({
           fitViewOptions={{ padding: 0.4 }}
           className={cn(
             isConnecting && "connecting",
-            justConnected && "connected"
+            justConnected && "connected",
           )}
           selectionMode={SelectionMode.Partial}
           nodesDraggable

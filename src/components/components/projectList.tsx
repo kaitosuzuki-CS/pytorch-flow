@@ -15,7 +15,6 @@ import type { ImportedProject, Project } from "@/lib/type";
 import Link from "next/link";
 import { ArrowRight, Import, Search, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { projects as allProjects } from "@/data/projects.json";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
@@ -126,9 +125,7 @@ export function ProjectList({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          router.push(`/settings/${project.id}`)
-                        }
+                        onClick={() => router.push(`/settings/${project.id}`)}
                       >
                         <Settings className="w-4 h-4" />
                       </Button>
@@ -154,7 +151,8 @@ export function ProjectList({
                         size="sm"
                         onClick={() => handleImport(project)}
                         disabled={importedProjects.some(
-                          (importedProject) => importedProject.id === project.id
+                          (importedProject) =>
+                            importedProject.id === project.id,
                         )}
                       >
                         Import

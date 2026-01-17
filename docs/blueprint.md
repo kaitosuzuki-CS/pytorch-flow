@@ -1,4 +1,4 @@
-# **App Name**: FlowForge
+# **App Name**: PyTorchFlow
 
 ## Core Features:
 
