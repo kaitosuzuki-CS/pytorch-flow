@@ -126,10 +126,17 @@ Here is a breakdown of some of the most critical files in the application:
 
 ## Sample Images
 
-**Project Editor Interface**
-The main workspace where you drag components from the left sidebar onto the infinite canvas.
-![Main Project Page](./sample_images/Main%20Project%20Page.png)
+### Configure Parameters
+![Configure Parameters](./sample_images/Configure%20Parameters.png)
 
-**Import Project Modal**
-Interface for importing existing projects as sub-components.
+### Create Project
+![Create Project](./sample_images/Create%20Project.png)
+
+### Dashboard
+![Dashboard](./sample_images/Dashboard.png)
+
+### Import Project Page
 ![Import Project Page](./sample_images/Import%20Project%20Page.png)
+
+### Main Project Page
+![Main Project Page](./sample_images/Main%20Project%20Page.png)
