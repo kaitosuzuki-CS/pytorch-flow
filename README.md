@@ -69,7 +69,7 @@ pytorch-flow/
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/kaitosuzuki-CS/Practice.git
+    git clone https://github.com/kaitosuzuki-CS/pytorch-flow.git
     cd pytorch-flow
     ```
 
